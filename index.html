@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#4B2E83" />
   <link rel="manifest" href="manifest.json" />
-  <title>CarlosCoach</title>
+  <title>CoachCarlos</title>
 
   <style>
     :root{
@@ -104,12 +104,20 @@
     .good{color:var(--good);font-weight:900;}
     .bad{color:var(--bad);font-weight:900;}
 
+    /* Action buttons:
+       Row 1 = ✅ Pass | ✅ Tackle
+       Row 2 = ❌ Pass | ❌ Tackle
+       (Pass left, Tackle right) */
     .actions{
-      display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
     }
     .act{
       border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px;
       font-weight:1000;font-size:16px;cursor:pointer;
+      text-align:left;
     }
     .act:disabled{opacity:.5;cursor:not-allowed;}
     .act.passGood{border-color:#cfe8d6;}
@@ -135,12 +143,57 @@
     .kpi h4{margin:0 0 8px;color:var(--purple);}
     .kpiRow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
     .target{font-size:12px;color:var(--muted);margin-top:6px;}
+
+    .miniRow{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;
+    }
+    .miniRow > div{flex:1;min-width:160px;}
+    .chipBtn{
+      border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;
+      cursor:pointer;font-weight:900;
+    }
+
+    .mutebox{
+      border:1px solid var(--line);
+      background:#fafafa;
+      border-radius:12px;
+      padding:10px;
+      font-size:12px;
+      color:#333;
+    }
+
+    .tableRow{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
+    }
+    .tableRow b{margin-right:8px;}
+
+    .smallBtn{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:10px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-weight:900;
+    }
+    .smallBtn.warn{border-color:#f0c36d;}
+    .smallBtn.danger{border-color:#b00020;color:#b00020;}
+    .tagArchived{
+      display:inline-block;
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#f7f7f7;
+      margin-left:8px;
+      color:#444;
+      font-weight:900;
+    }
   </style>
 </head>
 
 <body>
 <header>
-  <h1>CarlosCoach</h1>
+  <h1>CoachCarlos</h1>
   <div class="sub">Sideline tracking: passes/tackles + notes. Local on-device.</div>
 </header>
 
@@ -172,9 +225,10 @@
           <div class="row" style="gap:8px;">
             <div style="flex:1;min-width:220px;">
               <select id="gTeam"></select>
+              <div class="tiny" style="margin-top:6px;">Roster teams live in <b>Manage</b>.</div>
             </div>
             <div style="flex:0;min-width:180px;">
-              <button class="btn secondary" onclick="addTeam()">+ Add team</button>
+              <button class="btn secondary" onclick="addTeam()">+ Add to roster</button>
             </div>
           </div>
         </div>
@@ -190,9 +244,10 @@
           <div class="row" style="gap:8px;">
             <div style="flex:1;min-width:220px;">
               <select id="pA"></select>
+              <div class="tiny" style="margin-top:6px;">Adds go to roster for <b>future games</b>.</div>
             </div>
             <div style="flex:0;min-width:180px;">
-              <button class="btn secondary" onclick="addPlayer()">+ Add player</button>
+              <button class="btn secondary" onclick="addPlayer()">+ Add to roster</button>
             </div>
           </div>
         </div>
@@ -201,9 +256,10 @@
           <div class="row" style="gap:8px;">
             <div style="flex:1;min-width:220px;">
               <select id="pB"></select>
+              <div class="tiny" style="margin-top:6px;">Adds go to roster for <b>future games</b>.</div>
             </div>
             <div style="flex:0;min-width:180px;">
-              <button class="btn secondary" onclick="addPlayer()">+ Add player</button>
+              <button class="btn secondary" onclick="addPlayer()">+ Add to roster</button>
             </div>
           </div>
         </div>
@@ -246,10 +302,10 @@
           </div>
 
           <div class="actions">
-            <button class="act passGood" id="btnAPG" onclick="tap('A','passGood')">✅🟩 Pass+ <span>successful pass</span></button>
-            <button class="act passBad"  id="btnAPB" onclick="tap('A','passBad')">❌🟥 Pass- <span>unsuccessful pass</span></button>
-            <button class="act tackGood" id="btnATG" onclick="tap('A','tackGood')">✅🟦 Tack+ <span>successful tackle</span></button>
-            <button class="act tackBad"  id="btnATB" onclick="tap('A','tackBad')">❌🟧 Tack- <span>unsuccessful tackle</span></button>
+            <button class="act passGood" id="btnAPG" onclick="tap('A','passGood')">✅ Pass <span>successful pass</span></button>
+            <button class="act tackGood" id="btnATG" onclick="tap('A','tackGood')">✅ Tackle <span>successful tackle</span></button>
+            <button class="act passBad"  id="btnAPB" onclick="tap('A','passBad')">❌ Pass <span>unsuccessful pass</span></button>
+            <button class="act tackBad"  id="btnATB" onclick="tap('A','tackBad')">❌ Tackle <span>unsuccessful tackle</span></button>
           </div>
 
           <div style="margin-top:10px;">
@@ -274,10 +330,10 @@
           </div>
 
           <div class="actions">
-            <button class="act passGood" id="btnBPG" onclick="tap('B','passGood')">✅🟩 Pass+ <span>successful pass</span></button>
-            <button class="act passBad"  id="btnBPB" onclick="tap('B','passBad')">❌🟥 Pass- <span>unsuccessful pass</span></button>
-            <button class="act tackGood" id="btnBTG" onclick="tap('B','tackGood')">✅🟦 Tack+ <span>successful tackle</span></button>
-            <button class="act tackBad"  id="btnBTB" onclick="tap('B','tackBad')">❌🟧 Tack- <span>unsuccessful tackle</span></button>
+            <button class="act passGood" id="btnBPG" onclick="tap('B','passGood')">✅ Pass <span>successful pass</span></button>
+            <button class="act tackGood" id="btnBTG" onclick="tap('B','tackGood')">✅ Tackle <span>successful tackle</span></button>
+            <button class="act passBad"  id="btnBPB" onclick="tap('B','passBad')">❌ Pass <span>unsuccessful pass</span></button>
+            <button class="act tackBad"  id="btnBTB" onclick="tap('B','tackBad')">❌ Tackle <span>unsuccessful tackle</span></button>
           </div>
 
           <div style="margin-top:10px;">
@@ -294,9 +350,36 @@
     </div>
 
     <div class="card">
-      <h2>Recent games</h2>
-      <div id="recentGames"></div>
-      <div class="tiny" style="margin-top:10px;">Tap a recent game to load it into the Game tab.</div>
+      <h2>Game picker</h2>
+
+      <div class="mutebox">
+        Filters only affect the dropdown list. Selecting a game loads it into the Game tab (same as “recent games” did).
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <div>
+          <div class="tiny">Filter: Team played for</div>
+          <select id="fTeam"></select>
+        </div>
+        <div>
+          <div class="tiny">Filter: Start date</div>
+          <input type="date" id="fStart">
+        </div>
+        <div>
+          <div class="tiny">Filter: End date</div>
+          <input type="date" id="fEnd">
+        </div>
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn secondary" onclick="clearGameFilters()">Clear filters</button>
+      </div>
+
+      <div style="margin-top:12px;">
+        <div class="tiny">Select game</div>
+        <select id="gamePicker"></select>
+        <div class="tiny" style="margin-top:8px;">Pick a game above to load it.</div>
+      </div>
     </div>
   </section>
 
@@ -307,33 +390,110 @@
 
       <div class="row">
         <div>
-          <div class="tiny">Player A</div>
-          <select id="sPlayerA"></select>
+          <div class="tiny">Mode</div>
+          <select id="sumMode" onchange="renderSummary()">
+            <option value="aggregate">Aggregate (player totals)</option>
+            <option value="gameCompare">Game vs Game (single-game compare)</option>
+          </select>
         </div>
         <div>
-          <div class="tiny">Player B (optional compare)</div>
-          <select id="sPlayerB"></select>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:10px;">
-        <div>
-          <div class="tiny">Range</div>
+          <div class="tiny">Range (Aggregate mode)</div>
           <select id="sRange" onchange="renderSummary()">
             <option value="all">All games</option>
             <option value="last5">Last 5 games</option>
             <option value="single">Single game</option>
+            <option value="custom">Custom date range</option>
           </select>
-        </div>
-        <div>
-          <div class="tiny">Single game</div>
-          <select id="sGame"></select>
-          <div class="tiny">Used only when Range = Single game.</div>
         </div>
       </div>
 
-      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn secondary" onclick="renderSummary()">Refresh</button>
+      <!-- Aggregate controls -->
+      <div id="aggregateControls" style="margin-top:10px;">
+        <div class="row">
+          <div>
+            <div class="tiny">Player A</div>
+            <select id="sPlayerA"></select>
+          </div>
+          <div>
+            <div class="tiny">Player B (optional compare)</div>
+            <select id="sPlayerB"></select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <div class="tiny">Single game</div>
+            <select id="sGame"></select>
+            <div class="tiny">Used only when Range = Single game.</div>
+          </div>
+          <div id="customRangeBox" style="display:none;">
+            <div class="tiny">Custom range</div>
+            <div class="miniRow">
+              <div>
+                <div class="tiny">Start</div>
+                <input type="date" id="sStart">
+              </div>
+              <div>
+                <div class="tiny">End</div>
+                <input type="date" id="sEnd">
+              </div>
+            </div>
+            <div class="tiny" style="margin-top:6px;">Inclusive start/end.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn secondary" onclick="renderSummary()">Refresh</button>
+        </div>
+      </div>
+
+      <!-- Game vs Game controls -->
+      <div id="gameCompareControls" style="display:none;margin-top:10px;">
+        <div class="mutebox">
+          Pick one game for each side. Players can be different. Great for “Sofia vs PacNW” compared to “Harper vs PacNW ECNL”.
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <div class="tiny">Left player</div>
+            <select id="cPlayerL"></select>
+          </div>
+          <div>
+            <div class="tiny">Left game</div>
+            <select id="cGameL"></select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <div class="tiny">Right player</div>
+            <select id="cPlayerR"></select>
+          </div>
+          <div>
+            <div class="tiny">Right game</div>
+            <select id="cGameR"></select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <div class="tiny">Filter games by team (optional)</div>
+            <select id="cTeam"></select>
+          </div>
+          <div>
+            <div class="tiny">Filter start</div>
+            <input type="date" id="cStart">
+          </div>
+          <div>
+            <div class="tiny">Filter end</div>
+            <input type="date" id="cEnd">
+          </div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn secondary" onclick="clearCompareFilters()">Clear filters</button>
+          <button class="btn secondary" onclick="renderSummary()">Refresh</button>
+        </div>
       </div>
     </div>
 
@@ -359,14 +519,14 @@
         <div>
           <div class="tiny">Players</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
-            <button class="btn secondary" onclick="addPlayer()">+ Add player</button>
+            <button class="btn secondary" onclick="addPlayer()">+ Add to roster</button>
           </div>
           <div id="playerList" style="margin-top:10px;"></div>
         </div>
         <div>
           <div class="tiny">Teams</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
-            <button class="btn secondary" onclick="addTeam()">+ Add team</button>
+            <button class="btn secondary" onclick="addTeam()">+ Add to roster</button>
           </div>
           <div id="teamList" style="margin-top:10px;"></div>
         </div>
@@ -417,10 +577,24 @@ function pct(good, bad){
 function fmtGameLabel(g){
   return `${g.date} vs ${g.opponent || "Opponent?"} — ${g.teamName || "Team?"}${g.venue ? " @ "+g.venue : ""}`;
 }
+function withinDate(dateStr, startStr, endStr){
+  if(!dateStr) return false;
+  if(startStr && dateStr < startStr) return false;
+  if(endStr && dateStr > endStr) return false;
+  return true;
+}
+function uniqById(list){
+  const seen = new Set();
+  return list.filter(x => {
+    if(seen.has(x.id)) return false;
+    seen.add(x.id);
+    return true;
+  });
+}
 
 /* ===== data models =====
-players: [{id, name}]
-teams: [{id, name}]
+players: [{id, name, archived?:bool}]
+teams: [{id, name, archived?:bool}]
 games: [{
   id, date, venue, teamId, teamName, opponent,
   playerAId, playerAName, playerBId, playerBName,
@@ -436,18 +610,28 @@ function ensureDefaults(){
   const teams   = loadJSON(K_TEAMS, []);
   const games   = loadJSON(K_GAMES, []);
 
+  // upgrade old rows to include archived=false
+  if(Array.isArray(players)){
+    players.forEach(p => { if(typeof p.archived !== "boolean") p.archived = false; });
+    saveJSON(K_PLAYERS, players);
+  }
+  if(Array.isArray(teams)){
+    teams.forEach(t => { if(typeof t.archived !== "boolean") t.archived = false; });
+    saveJSON(K_TEAMS, teams);
+  }
+
   if(teams.length === 0){
     const seed = [
       "Seattle Celtic G12 White",
       "Seattle Celtic G12 Green",
-      "Seattle Celtic GA12",
+      "Seattle Celtic G12 GA",
       "Seattle United",
       "Indoor Team"
-    ].map(n => ({id:uid(), name:n}));
+    ].map(n => ({id:uid(), name:n, archived:false}));
     saveJSON(K_TEAMS, seed);
   }
   if(players.length === 0){
-    const seed = ["Sofia","Sophia","Harper"].map(n => ({id:uid(), name:n}));
+    const seed = ["Sofia","Sophia","Harper"].map(n => ({id:uid(), name:n, archived:false}));
     saveJSON(K_PLAYERS, seed);
   }
   if(!Array.isArray(games)) saveJSON(K_GAMES, []);
@@ -455,26 +639,41 @@ function ensureDefaults(){
 
 /* ===== dropdown rendering ===== */
 function renderDropdowns(){
-  const players = loadJSON(K_PLAYERS, []);
-  const teams   = loadJSON(K_TEAMS, []);
-  const games   = loadJSON(K_GAMES, []).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+  const playersAll = loadJSON(K_PLAYERS, []);
+  const teamsAll   = loadJSON(K_TEAMS, []);
+  const gamesAll   = loadJSON(K_GAMES, []).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
 
-  // Teams
+  // Keep non-archived by default in dropdowns
+  const players = playersAll.filter(p => !p.archived);
+  const teams   = teamsAll.filter(t => !t.archived);
+
+  // Teams (Game setup)
   $("gTeam").innerHTML = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
 
-  // Players
-  const opts = players.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
-  $("pA").innerHTML = `<option value="">— select —</option>${opts}`;
-  $("pB").innerHTML = `<option value="">— select —</option>${opts}`;
+  // Players (Game setup + summary)
+  const pOpts = players.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
+  $("pA").innerHTML = `<option value="">— select —</option>${pOpts}`;
+  $("pB").innerHTML = `<option value="">— select —</option>${pOpts}`;
 
-  $("sPlayerA").innerHTML = `<option value="">— select —</option>${opts}`;
-  $("sPlayerB").innerHTML = `<option value="">— none —</option>${opts}`;
+  $("sPlayerA").innerHTML = `<option value="">— select —</option>${pOpts}`;
+  $("sPlayerB").innerHTML = `<option value="">— none —</option>${pOpts}`;
 
-  // Games dropdown for summary
-  $("sGame").innerHTML = games.map(g => `<option value="${g.id}">${fmtGameLabel(g)}</option>`).join("");
+  // Compare players (game vs game)
+  $("cPlayerL").innerHTML = `<option value="">— select —</option>${pOpts}`;
+  $("cPlayerR").innerHTML = `<option value="">— select —</option>${pOpts}`;
 
-  // Recent games list
-  renderRecentGames();
+  // Summary games dropdown (all games)
+  $("sGame").innerHTML = gamesAll.map(g => `<option value="${g.id}">${fmtGameLabel(g)}</option>`).join("");
+
+  // Filters dropdowns: include "All"
+  $("fTeam").innerHTML = `<option value="">All teams</option>` + teams.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
+  $("cTeam").innerHTML = `<option value="">All teams</option>` + teams.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
+
+  // Game picker list
+  renderGamePicker();
+
+  // Compare game pickers
+  renderCompareGamePickers();
 
   // Manage lists
   renderManageLists();
@@ -486,17 +685,42 @@ function renderDropdowns(){
 function renderManageLists(){
   const players = loadJSON(K_PLAYERS, []);
   const teams   = loadJSON(K_TEAMS, []);
+
   $("playerList").innerHTML = players.map(p =>
     `<div class="list-item">
-      <b>${p.name}</b>
-      <div class="tiny">id: ${p.id}</div>
+      <div class="tableRow">
+        <div>
+          <b>${p.name}</b>
+          ${p.archived ? `<span class="tagArchived">ARCHIVED</span>` : ``}
+          <div class="tiny">id: ${p.id}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="smallBtn" onclick="renamePlayer('${p.id}')">✏️ Rename</button>
+          ${p.archived
+            ? `<button class="smallBtn warn" onclick="unarchivePlayer('${p.id}')">♻️ Unarchive</button>`
+            : `<button class="smallBtn danger" onclick="archivePlayer('${p.id}')">🗑️ Archive</button>`
+          }
+        </div>
+      </div>
     </div>`
   ).join("") || `<div class="tiny">No players yet.</div>`;
 
   $("teamList").innerHTML = teams.map(t =>
     `<div class="list-item">
-      <b>${t.name}</b>
-      <div class="tiny">id: ${t.id}</div>
+      <div class="tableRow">
+        <div>
+          <b>${t.name}</b>
+          ${t.archived ? `<span class="tagArchived">ARCHIVED</span>` : ``}
+          <div class="tiny">id: ${t.id}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="smallBtn" onclick="renameTeam('${t.id}')">✏️ Rename</button>
+          ${t.archived
+            ? `<button class="smallBtn warn" onclick="unarchiveTeam('${t.id}')">♻️ Unarchive</button>`
+            : `<button class="smallBtn danger" onclick="archiveTeam('${t.id}')">🗑️ Archive</button>`
+          }
+        </div>
+      </div>
     </div>`
   ).join("") || `<div class="tiny">No teams yet.</div>`;
 
@@ -514,17 +738,6 @@ function renderManageLists(){
     Total tackle events: <b>${totalTack}</b><br>
     Most recent game: <b>${last ? fmtGameLabel(last) : "—"}</b>
   `;
-}
-
-function renderRecentGames(){
-  const games = loadJSON(K_GAMES, []).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
-  const top = games.slice(0,8);
-  $("recentGames").innerHTML = top.map(g =>
-    `<div class="list-item" style="cursor:pointer;" onclick="loadGame('${g.id}')">
-      <b>${g.date}</b> — ${g.teamName || "Team?"} vs ${g.opponent || "Opponent?"}
-      <div class="tiny">${g.locked ? "LOCKED ✅" : "IN PROGRESS"} ${g.venue ? " | "+g.venue : ""}</div>
-    </div>`
-  ).join("") || `<div class="tiny">No games yet. Start one above.</div>`;
 }
 
 /* ===== tab ===== */
@@ -562,6 +775,9 @@ function updateLiveUI(game){
     $("nameA").textContent = "—";
     $("nameB").textContent = "—";
     setButtonsEnabled(false);
+    $("btnStart").disabled = false;
+    $("btnEnd").disabled = true;
+    $("btnUnlock").disabled = true;
     return;
   }
 
@@ -574,7 +790,7 @@ function updateLiveUI(game){
   $("gameStateBadge").textContent = live ? "IN PROGRESS" : "LOCKED ✅";
   $("gameStateBadge").className = "badge " + (live ? "live" : "locked");
 
-  $("btnStart").disabled  = !!game && !game.locked; // if already in progress, disable start
+  $("btnStart").disabled  = !!game && !game.locked;
   $("btnEnd").disabled    = !game || game.locked;
   $("btnUnlock").disabled = !game || !game.locked;
 
@@ -609,6 +825,7 @@ function startGame(){
   const date = $("gDate").value;
   const venue = clampName($("gVenue").value);
   const teamId = $("gTeam").value;
+
   const teams = loadJSON(K_TEAMS, []);
   const team = teams.find(t => t.id === teamId);
   const teamName = team ? team.name : "";
@@ -682,19 +899,31 @@ function loadGame(id){
   const game = getGame(id);
   if(!game){ alert("Game not found."); return; }
 
-  // populate setup fields so it matches what’s loaded
   $("gDate").value = game.date || "";
   $("gVenue").value = game.venue || "";
   $("gOpp").value = game.opponent || "";
 
-  // ensure dropdowns have the ids
-  $("gTeam").value = game.teamId || "";
-  $("pA").value = game.playerAId || "";
-  $("pB").value = game.playerBId || "";
+  // ensure dropdowns have the ids (if archived, may not exist in visible dropdown)
+  ensureIdInSelect("gTeam", game.teamId, game.teamName || "Team?");
+  ensureIdInSelect("pA", game.playerAId, game.playerAName || "Player A");
+  ensureIdInSelect("pB", game.playerBId, game.playerBName || "Player B");
 
   setCurrentGameId(game.id);
   updateLiveUI(game);
   showTab("game");
+}
+
+function ensureIdInSelect(selectId, val, label){
+  const sel = $(selectId);
+  if(!val) return;
+  const exists = Array.from(sel.options).some(o => o.value === val);
+  if(!exists){
+    const opt = document.createElement("option");
+    opt.value = val;
+    opt.textContent = `${label} (archived)`;
+    sel.appendChild(opt);
+  }
+  sel.value = val;
 }
 
 function tap(side, action){
@@ -713,7 +942,6 @@ function tap(side, action){
 
   stack.push({action, ts: Date.now()});
 
-  // save notes too
   game.notes = $("gNotes").value;
 
   saveGame(game);
@@ -755,34 +983,163 @@ $("gNotes").addEventListener("input", () => {
 
 /* ===== add player/team ===== */
 function addPlayer(){
-  const raw = prompt("New player name:");
+  const raw = prompt("New player name (adds to roster):");
   const name = prettyName(raw);
   if(!name) return;
 
   const players = loadJSON(K_PLAYERS, []);
-  if(players.some(p => p.name.toLowerCase() === name.toLowerCase())){
+  if(players.some(p => (p.name || "").toLowerCase() === name.toLowerCase() && !p.archived)){
     alert("That player already exists.");
     return;
   }
-  players.push({id:uid(), name});
+  players.push({id:uid(), name, archived:false});
   saveJSON(K_PLAYERS, players);
   renderDropdowns();
 }
 
 function addTeam(){
-  const raw = prompt("New team name:");
+  const raw = prompt("New team name (adds to roster):");
   const name = clampName(raw);
   if(!name) return;
 
   const teams = loadJSON(K_TEAMS, []);
-  if(teams.some(t => t.name.toLowerCase() === name.toLowerCase())){
+  if(teams.some(t => (t.name || "").toLowerCase() === name.toLowerCase() && !t.archived)){
     alert("That team already exists.");
     return;
   }
-  teams.push({id:uid(), name});
+  teams.push({id:uid(), name, archived:false});
   saveJSON(K_TEAMS, teams);
   renderDropdowns();
 }
+
+/* ===== manage: rename / archive (safe delete) ===== */
+function renamePlayer(id){
+  const players = loadJSON(K_PLAYERS, []);
+  const p = players.find(x => x.id === id);
+  if(!p) return;
+  const raw = prompt("Rename player to:", p.name || "");
+  const name = prettyName(raw);
+  if(!name) return;
+
+  // Prevent duplicate active names
+  if(players.some(x => x.id !== id && !x.archived && (x.name || "").toLowerCase() === name.toLowerCase())){
+    alert("That name already exists in active roster.");
+    return;
+  }
+
+  p.name = name;
+  saveJSON(K_PLAYERS, players);
+
+  // Update stored games display names for consistency
+  const games = loadJSON(K_GAMES, []);
+  games.forEach(g => {
+    if(g.playerAId === id) g.playerAName = name;
+    if(g.playerBId === id) g.playerBName = name;
+  });
+  saveJSON(K_GAMES, games);
+
+  renderDropdowns();
+}
+
+function archivePlayer(id){
+  const players = loadJSON(K_PLAYERS, []);
+  const p = players.find(x => x.id === id);
+  if(!p) return;
+  if(!confirm(`Archive player "${p.name}"?\n\nArchived players are hidden from dropdowns, but old games keep their history.`)) return;
+  p.archived = true;
+  saveJSON(K_PLAYERS, players);
+  renderDropdowns();
+}
+
+function unarchivePlayer(id){
+  const players = loadJSON(K_PLAYERS, []);
+  const p = players.find(x => x.id === id);
+  if(!p) return;
+  p.archived = false;
+  saveJSON(K_PLAYERS, players);
+  renderDropdowns();
+}
+
+function renameTeam(id){
+  const teams = loadJSON(K_TEAMS, []);
+  const t = teams.find(x => x.id === id);
+  if(!t) return;
+  const raw = prompt("Rename team to:", t.name || "");
+  const name = clampName(raw);
+  if(!name) return;
+
+  if(teams.some(x => x.id !== id && !x.archived && (x.name || "").toLowerCase() === name.toLowerCase())){
+    alert("That name already exists in active roster.");
+    return;
+  }
+
+  t.name = name;
+  saveJSON(K_TEAMS, teams);
+
+  const games = loadJSON(K_GAMES, []);
+  games.forEach(g => {
+    if(g.teamId === id) g.teamName = name;
+  });
+  saveJSON(K_GAMES, games);
+
+  renderDropdowns();
+}
+
+function archiveTeam(id){
+  const teams = loadJSON(K_TEAMS, []);
+  const t = teams.find(x => x.id === id);
+  if(!t) return;
+  if(!confirm(`Archive team "${t.name}"?\n\nArchived teams are hidden from dropdowns, but old games keep their history.`)) return;
+  t.archived = true;
+  saveJSON(K_TEAMS, teams);
+  renderDropdowns();
+}
+
+function unarchiveTeam(id){
+  const teams = loadJSON(K_TEAMS, []);
+  const t = teams.find(x => x.id === id);
+  if(!t) return;
+  t.archived = false;
+  saveJSON(K_TEAMS, teams);
+  renderDropdowns();
+}
+
+/* ===== game picker (replaces "recent games") ===== */
+function clearGameFilters(){
+  $("fTeam").value = "";
+  $("fStart").value = "";
+  $("fEnd").value = "";
+  renderGamePicker();
+}
+
+function renderGamePicker(){
+  const teamId = $("fTeam").value;
+  const start = $("fStart").value;
+  const end = $("fEnd").value;
+
+  const gamesAll = loadJSON(K_GAMES, []).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+
+  const filtered = gamesAll.filter(g => {
+    if(teamId && g.teamId !== teamId) return false;
+    if((start || end) && !withinDate(g.date, start, end)) return false;
+    return true;
+  });
+
+  $("gamePicker").innerHTML = filtered.length
+    ? `<option value="">— select a game —</option>` + filtered.map(g => `<option value="${g.id}">${fmtGameLabel(g)}${g.locked ? " [LOCKED]" : ""}</option>`).join("")
+    : `<option value="">— no games match —</option>`;
+
+  $("gamePicker").value = "";
+}
+
+$("fTeam").addEventListener("change", renderGamePicker);
+$("fStart").addEventListener("change", renderGamePicker);
+$("fEnd").addEventListener("change", renderGamePicker);
+
+$("gamePicker").addEventListener("change", () => {
+  const id = $("gamePicker").value;
+  if(id) loadGame(id);
+});
 
 /* ===== summary ===== */
 function gamesForRange(range){
@@ -792,6 +1149,12 @@ function gamesForRange(range){
   if(range === "single"){
     const id = $("sGame").value;
     return id ? games.filter(g => g.id === id) : [];
+  }
+  if(range === "custom"){
+    const start = $("sStart").value;
+    const end = $("sEnd").value;
+    if(!start || !end) return [];
+    return games.filter(g => withinDate(g.date, start, end));
   }
   return games;
 }
@@ -825,7 +1188,6 @@ function aggForPlayer(games, playerId){
   });
 
   // Best game logic with minimum volume thresholds
-  // Pass best: >=10 attempts; Tackle best: >=4 attempts
   perGame.forEach(x=>{
     const pg = x.s.passGood, pb = x.s.passBad;
     const tg = x.s.tackGood, tb = x.s.tackBad;
@@ -843,7 +1205,7 @@ function aggForPlayer(games, playerId){
   });
 
   // Trend: last 3 games vs prior games (for this player)
-  const pGames = perGame; // already sorted by date
+  const pGames = perGame;
   const last3 = pGames.slice(-3);
   const prior = pGames.slice(0, Math.max(0, pGames.length - 3));
 
@@ -860,6 +1222,16 @@ function aggForPlayer(games, playerId){
   addTo(out.prior, prior);
 
   return out;
+}
+
+function playerStatsForSingleGame(game, playerId){
+  if(!game || !playerId) return null;
+  let side = null;
+  if(game.playerAId === playerId) side = "A";
+  if(game.playerBId === playerId) side = "B";
+  if(!side) return null;
+  const s = (side==="A") ? game.stats.A : game.stats.B;
+  return { side, s };
 }
 
 function rateText(good, bad){
@@ -891,63 +1263,169 @@ function trendLine(label, bucket){
   return `<div class="tiny">${label}: Pass ${p} | Tack ${t} (${bucket.games} games)</div>`;
 }
 
-function renderSummary(){
-  const range = $("sRange").value;
-  const games = gamesForRange(range);
+function buildAggregateBlock(name, agg){
+  const pass = rateText(agg.passGood, agg.passBad);
+  const tack = rateText(agg.tackGood, agg.tackBad);
 
-  // header card only for single game
-  const headerCard = $("summaryHeaderCard");
-  if(range === "single" && games.length === 1){
-    headerCard.style.display = "block";
-    $("selectedGameHeader").textContent = fmtGameLabel(games[0]);
-  } else {
-    headerCard.style.display = "none";
+  const bestPass = agg.bestPass ? `${Math.round(agg.bestPass.rate*100)}% — ${fmtGameLabel(agg.bestPass.game)}` : "— (need ≥10 attempts)";
+  const bestTack = agg.bestTack ? `${Math.round(agg.bestTack.rate*100)}% — ${fmtGameLabel(agg.bestTack.game)}` : "— (need ≥4 attempts)";
+
+  return `
+    <div class="kpi">
+      <h4>${name}</h4>
+
+      <div class="kpiRow"><b>Passes</b><span>${pass} ${passTargetBadge(agg.passGood, agg.passBad)}</span></div>
+      <div class="kpiRow"><b>Tackles</b><span>${tack} ${tackTargetBadge(agg.tackGood, agg.tackBad)}</span></div>
+
+      <div class="target">Best pass game: <b>${bestPass}</b></div>
+      <div class="target">Best tackle game: <b>${bestTack}</b></div>
+
+      <div class="divider" style="margin:10px 0;"></div>
+      <div class="tiny"><b>Trend</b> (last 3 vs prior)</div>
+      ${trendLine("Last 3", agg.last3)}
+      ${trendLine("Prior", agg.prior)}
+    </div>
+  `;
+}
+
+function buildSingleGameBlock(title, game, playerId){
+  const players = loadJSON(K_PLAYERS, []);
+  const p = players.find(x => x.id === playerId);
+  const label = p ? p.name : title;
+
+  if(!game){
+    return `<div class="kpi"><h4>${label}</h4><div class="tiny">Pick a game.</div></div>`;
   }
 
-  const idA = $("sPlayerA").value;
-  const idB = $("sPlayerB").value;
-
-  const players = loadJSON(K_PLAYERS, []);
-  const pA = players.find(p=>p.id===idA);
-  const pB = players.find(p=>p.id===idB);
-
-  const blocks = [];
-
-  function buildBlock(name, agg){
-    const pass = rateText(agg.passGood, agg.passBad);
-    const tack = rateText(agg.tackGood, agg.tackBad);
-
-    const bestPass = agg.bestPass ? `${Math.round(agg.bestPass.rate*100)}% — ${fmtGameLabel(agg.bestPass.game)}` : "— (need ≥10 attempts)";
-    const bestTack = agg.bestTack ? `${Math.round(agg.bestTack.rate*100)}% — ${fmtGameLabel(agg.bestTack.game)}` : "— (need ≥4 attempts)";
-
+  const ps = playerStatsForSingleGame(game, playerId);
+  if(!ps){
     return `
       <div class="kpi">
-        <h4>${name}</h4>
-
-        <div class="kpiRow"><b>Passes</b><span>${pass} ${passTargetBadge(agg.passGood, agg.passBad)}</span></div>
-        <div class="kpiRow"><b>Tackles</b><span>${tack} ${tackTargetBadge(agg.tackGood, agg.tackBad)}</span></div>
-
-        <div class="target">Best pass game: <b>${bestPass}</b></div>
-        <div class="target">Best tackle game: <b>${bestTack}</b></div>
-
-        <div class="divider" style="margin:10px 0;"></div>
-        <div class="tiny"><b>Trend</b> (last 3 vs prior)</div>
-        ${trendLine("Last 3", agg.last3)}
-        ${trendLine("Prior", agg.prior)}
+        <h4>${label}</h4>
+        <div class="tiny">Selected player not found in that game.</div>
+        <div class="target">${fmtGameLabel(game)}</div>
       </div>
     `;
   }
 
-  if(idA){
-    const aggA = aggForPlayer(games, idA);
-    blocks.push(buildBlock(pA ? pA.name : "Player A", aggA));
-  }
-  if(idB){
-    const aggB = aggForPlayer(games, idB);
-    blocks.push(buildBlock(pB ? pB.name : "Player B", aggB));
+  const s = ps.s;
+  const pass = rateText(s.passGood, s.passBad);
+  const tack = rateText(s.tackGood, s.tackBad);
+
+  return `
+    <div class="kpi">
+      <h4>${label}</h4>
+      <div class="tiny">${fmtGameLabel(game)}</div>
+
+      <div class="divider" style="margin:10px 0;"></div>
+
+      <div class="kpiRow"><b>Passes</b><span>${pass} ${passTargetBadge(s.passGood, s.passBad)}</span></div>
+      <div class="kpiRow"><b>Tackles</b><span>${tack} ${tackTargetBadge(s.tackGood, s.tackBad)}</span></div>
+
+      <div class="divider" style="margin:10px 0;"></div>
+      <div class="tiny"><b>Notes</b></div>
+      <div class="mutebox">${(game.notes || "—").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>
+    </div>
+  `;
+}
+
+function renderCompareGamePickers(){
+  const teamId = $("cTeam").value;
+  const start = $("cStart").value;
+  const end = $("cEnd").value;
+
+  const gamesAll = loadJSON(K_GAMES, []).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+  const filtered = gamesAll.filter(g => {
+    if(teamId && g.teamId !== teamId) return false;
+    if((start || end) && !withinDate(g.date, start, end)) return false;
+    return true;
+  });
+
+  const options = filtered.map(g => `<option value="${g.id}">${fmtGameLabel(g)}</option>`).join("");
+  $("cGameL").innerHTML = `<option value="">— select —</option>` + options;
+  $("cGameR").innerHTML = `<option value="">— select —</option>` + options;
+}
+
+function clearCompareFilters(){
+  $("cTeam").value = "";
+  $("cStart").value = "";
+  $("cEnd").value = "";
+  renderCompareGamePickers();
+}
+
+$("cTeam").addEventListener("change", renderCompareGamePickers);
+$("cStart").addEventListener("change", renderCompareGamePickers);
+$("cEnd").addEventListener("change", renderCompareGamePickers);
+
+function renderSummary(){
+  const mode = $("sumMode").value;
+
+  $("aggregateControls").style.display = (mode === "aggregate") ? "block" : "none";
+  $("gameCompareControls").style.display = (mode === "gameCompare") ? "block" : "none";
+
+  // Show/hide custom date box
+  const range = $("sRange").value;
+  $("customRangeBox").style.display = (range === "custom") ? "block" : "none";
+
+  const headerCard = $("summaryHeaderCard");
+
+  if(mode === "aggregate"){
+    const games = gamesForRange(range);
+
+    if(range === "single" && games.length === 1){
+      headerCard.style.display = "block";
+      $("selectedGameHeader").textContent = fmtGameLabel(games[0]);
+    } else if(range === "custom"){
+      headerCard.style.display = "block";
+      const start = $("sStart").value || "—";
+      const end = $("sEnd").value || "—";
+      $("selectedGameHeader").textContent = `Custom range: ${start} to ${end} (${games.length} games)`;
+    } else {
+      headerCard.style.display = "none";
+    }
+
+    const idA = $("sPlayerA").value;
+    const idB = $("sPlayerB").value;
+
+    const players = loadJSON(K_PLAYERS, []);
+    const pA = players.find(p=>p.id===idA);
+    const pB = players.find(p=>p.id===idB);
+
+    const blocks = [];
+
+    if(range === "custom" && (!$("sStart").value || !$("sEnd").value)){
+      $("summaryOut").innerHTML = `<div class="tiny">Pick both start and end date for custom range.</div>`;
+      return;
+    }
+
+    if(idA){
+      const aggA = aggForPlayer(games, idA);
+      blocks.push(buildAggregateBlock(pA ? pA.name : "Player A", aggA));
+    }
+    if(idB){
+      const aggB = aggForPlayer(games, idB);
+      blocks.push(buildAggregateBlock(pB ? pB.name : "Player B", aggB));
+    }
+
+    $("summaryOut").innerHTML = blocks.length ? blocks.join("") : `<div class="tiny">Select a player to see summary.</div>`;
+    return;
   }
 
-  $("summaryOut").innerHTML = blocks.length ? blocks.join("") : `<div class="tiny">Select a player to see summary.</div>`;
+  // Game vs Game
+  headerCard.style.display = "none";
+
+  renderCompareGamePickers(); // keep in sync
+
+  const gL = $("cGameL").value ? getGame($("cGameL").value) : null;
+  const gR = $("cGameR").value ? getGame($("cGameR").value) : null;
+  const pL = $("cPlayerL").value;
+  const pR = $("cPlayerR").value;
+
+  const blocks = [];
+  blocks.push(buildSingleGameBlock("Left", gL, pL));
+  blocks.push(buildSingleGameBlock("Right", gR, pR));
+
+  $("summaryOut").innerHTML = blocks.join("");
 }
 
 /* ===== reset ===== */
@@ -974,18 +1452,25 @@ function init(){
 
   renderDropdowns();
 
+  // default summary custom dates (last 30 days)
+  const d = new Date();
+  const end = d.toISOString().slice(0,10);
+  d.setDate(d.getDate() - 30);
+  const start = d.toISOString().slice(0,10);
+  $("sStart").value = start;
+  $("sEnd").value = end;
+
   // load active game if exists
   const id = currentGameId();
   if(id){
     const game = getGame(id);
     if(game){
-      // populate setup fields
       $("gDate").value = game.date || today;
       $("gVenue").value = game.venue || "";
       $("gOpp").value = game.opponent || "";
-      $("gTeam").value = game.teamId || "";
-      $("pA").value = game.playerAId || "";
-      $("pB").value = game.playerBId || "";
+      ensureIdInSelect("gTeam", game.teamId, game.teamName || "Team?");
+      ensureIdInSelect("pA", game.playerAId, game.playerAName || "Player A");
+      ensureIdInSelect("pB", game.playerBId, game.playerBName || "Player B");
       updateLiveUI(game);
     } else {
       setCurrentGameId("");
@@ -996,20 +1481,21 @@ function init(){
   }
 
   // summary listeners
-  ["sPlayerA","sPlayerB","sGame"].forEach(id=> $(id).addEventListener("change", renderSummary));
-  $("sRange").addEventListener("change", renderSummary);
+  ["sumMode","sPlayerA","sPlayerB","sGame","sRange","sStart","sEnd","cPlayerL","cPlayerR","cGameL","cGameR"].forEach(id=>{
+    const el = $(id);
+    if(el) el.addEventListener("change", renderSummary);
+  });
 
-  // when range is single, keep header updated
   renderSummary();
 
-  // update live UI when dropdown selection changes (for names shown before start)
+  // update name pills when dropdown selection changes (before start)
   $("pA").addEventListener("change", ()=> {
-    const players = loadJSON(K_PLAYERS, []);
+    const players = loadJSON(K_PLAYERS, []).filter(p => !p.archived);
     const A = players.find(p=>p.id===$("pA").value);
     $("nameA").textContent = A ? A.name : "—";
   });
   $("pB").addEventListener("change", ()=> {
-    const players = loadJSON(K_PLAYERS, []);
+    const players = loadJSON(K_PLAYERS, []).filter(p => !p.archived);
     const B = players.find(p=>p.id===$("pB").value);
     $("nameB").textContent = B ? B.name : "—";
   });
