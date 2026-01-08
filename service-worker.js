@@ -1,9 +1,10 @@
 /* CoachCarlos Service Worker */
-const CACHE_VERSION = "coachcarlos-v1.0.1";
+const CACHE_VERSION = "coachcarlos-v1.0.1"; // bump this to force refresh
 const ASSETS = [
   "./",
   "./index.html",
-  "./manifest.json"
+  "./manifest.json",
+  "./service-worker.js"
 ];
 
 self.addEventListener("install", (event) => {
@@ -28,7 +29,7 @@ self.addEventListener("fetch", (event) => {
   if (req.headers.get("accept")?.includes("text/html")) {
     event.respondWith((async () => {
       try {
-        const fresh = await fetch(req);
+        const fresh = await fetch(req, { cache: "no-store" });
         const cache = await caches.open(CACHE_VERSION);
         cache.put("./index.html", fresh.clone());
         return fresh;
