@@ -1,5 +1,5 @@
-/* CarlosCoach Service Worker */
-const CACHE_VERSION = "carloscoach-v1.0.0";
+/* CoachCarlos Service Worker */
+const CACHE_VERSION = "coachcarlos-v1.0.1";
 const ASSETS = [
   "./",
   "./index.html",
@@ -23,6 +23,7 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const req = event.request;
+
   // Network-first for HTML so changes update, cache fallback for offline
   if (req.headers.get("accept")?.includes("text/html")) {
     event.respondWith((async () => {
