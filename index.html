@@ -87,13 +87,17 @@
       display:grid;
       grid-template-columns: 1fr 1fr;   /* default: side-by-side */
       gap:12px;
+      align-items:start;
+    }
+    .panel{
+      min-width:0;          /* IMPORTANT: allows content to shrink inside grid */
     }
     @media (max-width: 360px){
       .panels{ grid-template-columns: 1fr; } /* stack only on tiny screens */
     }
 
     .panel{
-      border:1px solid var(--line);border-radius:14px;padding:12px;
+      border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0;
     }
     .panel h3{margin:0 0 6px;color:#111;font-size:14px;}
     .score{
@@ -113,13 +117,23 @@
     .actions{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:10px;
+      gap:8px;
       margin-top:10px;
     }
     .act{
-      border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px;
-      font-weight:1000;font-size:16px;cursor:pointer;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      padding:12px;
+      font-weight:1000;
+      font-size:15px;
+      cursor:pointer;
       text-align:left;
+
+      width:100%;
+      box-sizing:border-box;
+      white-space:normal;
+      overflow-wrap:anywhere;
     }
     .act:disabled{opacity:.5;cursor:not-allowed;}
     .act.passGood{border-color:#cfe8d6;}
@@ -133,7 +147,7 @@
     @media (max-width: 520px){
       main{padding:12px;}
       .act{padding:12px;font-size:15px;}
-      .score .box{padding:9px;}
+      .score .box{padding:8px;}
     }
 
     .divider{border:none;border-top:1px dashed var(--line);margin:14px 0;}
