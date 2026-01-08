@@ -80,15 +80,18 @@
     .btn.danger{border-color:#b00020;background:#b00020;}
     .btn:disabled{opacity:.5;cursor:not-allowed;}
 
-    /* Panels */
+    /* Panels
+       FIX: side-by-side by default to reduce scrolling on phones.
+       Stack only on very narrow screens where two columns becomes unusable. */
     .panels{
       display:grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr 1fr;   /* default: side-by-side */
       gap:12px;
     }
-    @media (min-width: 800px){
-      .panels{grid-template-columns:1fr 1fr;}
+    @media (max-width: 420px){
+      .panels{ grid-template-columns: 1fr; } /* stack only on tiny screens */
     }
+
     .panel{
       border:1px solid var(--line);border-radius:14px;padding:12px;
     }
@@ -106,8 +109,7 @@
 
     /* Action buttons:
        Row 1 = ✅ Pass | ✅ Tackle
-       Row 2 = ❌ Pass | ❌ Tackle
-       (Pass left, Tackle right) */
+       Row 2 = ❌ Pass | ❌ Tackle */
     .actions{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -126,6 +128,13 @@
     .act.tackBad{border-color:#ffe4c7;}
 
     .act span{display:block;font-size:12px;color:var(--muted);font-weight:800;margin-top:4px;}
+
+    /* Tighten just a bit on small phones so buttons stay comfy without scrolling */
+    @media (max-width: 520px){
+      main{padding:12px;}
+      .act{padding:12px;font-size:15px;}
+      .score .box{padding:9px;}
+    }
 
     .divider{border:none;border-top:1px dashed var(--line);margin:14px 0;}
     .list-item{
@@ -407,7 +416,6 @@
         </div>
       </div>
 
-      <!-- Aggregate controls -->
       <div id="aggregateControls" style="margin-top:10px;">
         <div class="row">
           <div>
@@ -447,7 +455,6 @@
         </div>
       </div>
 
-      <!-- Game vs Game controls -->
       <div id="gameCompareControls" style="display:none;margin-top:10px;">
         <div class="mutebox">
           Pick one game for each side. Players can be different. Great for “Sofia vs PacNW” compared to “Harper vs PacNW ECNL”.
@@ -583,26 +590,6 @@ function withinDate(dateStr, startStr, endStr){
   if(endStr && dateStr > endStr) return false;
   return true;
 }
-function uniqById(list){
-  const seen = new Set();
-  return list.filter(x => {
-    if(seen.has(x.id)) return false;
-    seen.add(x.id);
-    return true;
-  });
-}
-
-/* ===== data models =====
-players: [{id, name, archived?:bool}]
-teams: [{id, name, archived?:bool}]
-games: [{
-  id, date, venue, teamId, teamName, opponent,
-  playerAId, playerAName, playerBId, playerBName,
-  stats: {A:{passGood,passBad,tackGood,tackBad}, B:{...}},
-  stacks: {A:[action], B:[action]},  // for undo
-  notes, locked, startedAt, endedAt
-}]
-*/
 
 /* ===== init defaults ===== */
 function ensureDefaults(){
@@ -610,7 +597,6 @@ function ensureDefaults(){
   const teams   = loadJSON(K_TEAMS, []);
   const games   = loadJSON(K_GAMES, []);
 
-  // upgrade old rows to include archived=false
   if(Array.isArray(players)){
     players.forEach(p => { if(typeof p.archived !== "boolean") p.archived = false; });
     saveJSON(K_PLAYERS, players);
@@ -643,14 +629,11 @@ function renderDropdowns(){
   const teamsAll   = loadJSON(K_TEAMS, []);
   const gamesAll   = loadJSON(K_GAMES, []).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
 
-  // Keep non-archived by default in dropdowns
   const players = playersAll.filter(p => !p.archived);
   const teams   = teamsAll.filter(t => !t.archived);
 
-  // Teams (Game setup)
   $("gTeam").innerHTML = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
 
-  // Players (Game setup + summary)
   const pOpts = players.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
   $("pA").innerHTML = `<option value="">— select —</option>${pOpts}`;
   $("pB").innerHTML = `<option value="">— select —</option>${pOpts}`;
@@ -658,27 +641,17 @@ function renderDropdowns(){
   $("sPlayerA").innerHTML = `<option value="">— select —</option>${pOpts}`;
   $("sPlayerB").innerHTML = `<option value="">— none —</option>${pOpts}`;
 
-  // Compare players (game vs game)
   $("cPlayerL").innerHTML = `<option value="">— select —</option>${pOpts}`;
   $("cPlayerR").innerHTML = `<option value="">— select —</option>${pOpts}`;
 
-  // Summary games dropdown (all games)
   $("sGame").innerHTML = gamesAll.map(g => `<option value="${g.id}">${fmtGameLabel(g)}</option>`).join("");
 
-  // Filters dropdowns: include "All"
   $("fTeam").innerHTML = `<option value="">All teams</option>` + teams.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
   $("cTeam").innerHTML = `<option value="">All teams</option>` + teams.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
 
-  // Game picker list
   renderGamePicker();
-
-  // Compare game pickers
   renderCompareGamePickers();
-
-  // Manage lists
   renderManageLists();
-
-  // If summary already open, re-render
   renderSummary();
 }
 
@@ -724,7 +697,6 @@ function renderManageLists(){
     </div>`
   ).join("") || `<div class="tiny">No teams yet.</div>`;
 
-  // Health
   const games = loadJSON(K_GAMES, []);
   const totalGames = games.length;
   const uniqPlayers = players.length;
@@ -903,7 +875,6 @@ function loadGame(id){
   $("gVenue").value = game.venue || "";
   $("gOpp").value = game.opponent || "";
 
-  // ensure dropdowns have the ids (if archived, may not exist in visible dropdown)
   ensureIdInSelect("gTeam", game.teamId, game.teamName || "Team?");
   ensureIdInSelect("pA", game.playerAId, game.playerAName || "Player A");
   ensureIdInSelect("pB", game.playerBId, game.playerBName || "Player B");
@@ -972,7 +943,6 @@ function undo(side){
   updateLiveUI(game);
 }
 
-/* Notes autosave (but only when game is live/unlocked) */
 $("gNotes").addEventListener("input", () => {
   const id = currentGameId();
   const game = id ? getGame(id) : null;
@@ -1012,7 +982,7 @@ function addTeam(){
   renderDropdowns();
 }
 
-/* ===== manage: rename / archive (safe delete) ===== */
+/* ===== manage ===== */
 function renamePlayer(id){
   const players = loadJSON(K_PLAYERS, []);
   const p = players.find(x => x.id === id);
@@ -1021,7 +991,6 @@ function renamePlayer(id){
   const name = prettyName(raw);
   if(!name) return;
 
-  // Prevent duplicate active names
   if(players.some(x => x.id !== id && !x.archived && (x.name || "").toLowerCase() === name.toLowerCase())){
     alert("That name already exists in active roster.");
     return;
@@ -1030,7 +999,6 @@ function renamePlayer(id){
   p.name = name;
   saveJSON(K_PLAYERS, players);
 
-  // Update stored games display names for consistency
   const games = loadJSON(K_GAMES, []);
   games.forEach(g => {
     if(g.playerAId === id) g.playerAName = name;
@@ -1040,7 +1008,6 @@ function renamePlayer(id){
 
   renderDropdowns();
 }
-
 function archivePlayer(id){
   const players = loadJSON(K_PLAYERS, []);
   const p = players.find(x => x.id === id);
@@ -1050,7 +1017,6 @@ function archivePlayer(id){
   saveJSON(K_PLAYERS, players);
   renderDropdowns();
 }
-
 function unarchivePlayer(id){
   const players = loadJSON(K_PLAYERS, []);
   const p = players.find(x => x.id === id);
@@ -1084,7 +1050,6 @@ function renameTeam(id){
 
   renderDropdowns();
 }
-
 function archiveTeam(id){
   const teams = loadJSON(K_TEAMS, []);
   const t = teams.find(x => x.id === id);
@@ -1094,7 +1059,6 @@ function archiveTeam(id){
   saveJSON(K_TEAMS, teams);
   renderDropdowns();
 }
-
 function unarchiveTeam(id){
   const teams = loadJSON(K_TEAMS, []);
   const t = teams.find(x => x.id === id);
@@ -1104,14 +1068,13 @@ function unarchiveTeam(id){
   renderDropdowns();
 }
 
-/* ===== game picker (replaces "recent games") ===== */
+/* ===== game picker ===== */
 function clearGameFilters(){
   $("fTeam").value = "";
   $("fStart").value = "";
   $("fEnd").value = "";
   renderGamePicker();
 }
-
 function renderGamePicker(){
   const teamId = $("fTeam").value;
   const start = $("fStart").value;
@@ -1131,17 +1094,15 @@ function renderGamePicker(){
 
   $("gamePicker").value = "";
 }
-
 $("fTeam").addEventListener("change", renderGamePicker);
 $("fStart").addEventListener("change", renderGamePicker);
 $("fEnd").addEventListener("change", renderGamePicker);
-
 $("gamePicker").addEventListener("change", () => {
   const id = $("gamePicker").value;
   if(id) loadGame(id);
 });
 
-/* ===== summary ===== */
+/* ===== summary (unchanged logic from your deployed version) ===== */
 function gamesForRange(range){
   const games = loadJSON(K_GAMES, []).slice().sort((a,b)=> (a.date||"").localeCompare(b.date||""));
   if(range === "all") return games;
@@ -1187,7 +1148,6 @@ function aggForPlayer(games, playerId){
     perGame.push({game:g, s});
   });
 
-  // Best game logic with minimum volume thresholds
   perGame.forEach(x=>{
     const pg = x.s.passGood, pb = x.s.passBad;
     const tg = x.s.tackGood, tb = x.s.tackBad;
@@ -1204,7 +1164,6 @@ function aggForPlayer(games, playerId){
     }
   });
 
-  // Trend: last 3 games vs prior games (for this player)
   const pGames = perGame;
   const last3 = pGames.slice(-3);
   const prior = pGames.slice(0, Math.max(0, pGames.length - 3));
@@ -1363,7 +1322,6 @@ function renderSummary(){
   $("aggregateControls").style.display = (mode === "aggregate") ? "block" : "none";
   $("gameCompareControls").style.display = (mode === "gameCompare") ? "block" : "none";
 
-  // Show/hide custom date box
   const range = $("sRange").value;
   $("customRangeBox").style.display = (range === "custom") ? "block" : "none";
 
@@ -1411,10 +1369,9 @@ function renderSummary(){
     return;
   }
 
-  // Game vs Game
   headerCard.style.display = "none";
 
-  renderCompareGamePickers(); // keep in sync
+  renderCompareGamePickers();
 
   const gL = $("cGameL").value ? getGame($("cGameL").value) : null;
   const gR = $("cGameR").value ? getGame($("cGameR").value) : null;
@@ -1446,13 +1403,11 @@ function resetAll(){
 function init(){
   ensureDefaults();
 
-  // default date = today
   const today = new Date().toISOString().slice(0,10);
   $("gDate").value = today;
 
   renderDropdowns();
 
-  // default summary custom dates (last 30 days)
   const d = new Date();
   const end = d.toISOString().slice(0,10);
   d.setDate(d.getDate() - 30);
@@ -1460,7 +1415,6 @@ function init(){
   $("sStart").value = start;
   $("sEnd").value = end;
 
-  // load active game if exists
   const id = currentGameId();
   if(id){
     const game = getGame(id);
@@ -1480,7 +1434,6 @@ function init(){
     updateLiveUI(null);
   }
 
-  // summary listeners
   ["sumMode","sPlayerA","sPlayerB","sGame","sRange","sStart","sEnd","cPlayerL","cPlayerR","cGameL","cGameR"].forEach(id=>{
     const el = $(id);
     if(el) el.addEventListener("change", renderSummary);
@@ -1488,7 +1441,6 @@ function init(){
 
   renderSummary();
 
-  // update name pills when dropdown selection changes (before start)
   $("pA").addEventListener("change", ()=> {
     const players = loadJSON(K_PLAYERS, []).filter(p => !p.archived);
     const A = players.find(p=>p.id===$("pA").value);
