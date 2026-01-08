@@ -1,0 +1,9 @@
+{
+  "name": "CarlosCoach",
+  "short_name": "Coach",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#4B2E83",
+  "icons": []
+}
