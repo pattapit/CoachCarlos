@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#4B2E83" />
+  <link rel="manifest" href="manifest.json" />
+  <title>CarlosCoach</title>
+
+  <style>
+    :root{
+      --purple:#4B2E83;          /* Husky Purple */
+      --gold:#B7A57A;            /* Husky Gold */
+      --goldLight:#E8E3D3;
+      --line:#e6e6e6;
+      --muted:#666;
+      --good:#137333;
+      --bad:#b00020;
+      --bg:#fff;
+    }
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      margin:0;background:var(--bg);color:#111;
+    }
+    header{
+      padding:16px;border-bottom:1px solid var(--line);
+      position:sticky;top:0;background:#fff;z-index:10;
+    }
+    h1{margin:0;color:var(--purple);font-size:20px;}
+    .sub{font-size:12px;color:var(--muted);margin-top:4px;}
+
+    nav{
+      display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);
+      position:sticky;top:66px;background:#fff;z-index:9;flex-wrap:wrap;
+    }
+    nav button{
+      border:1px solid var(--purple);
+      background:#fff;color:var(--purple);
+      border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer;
+    }
+    nav button.active{background:var(--purple);color:#fff;}
+
+    main{padding:16px;max-width:980px;margin:0 auto;}
+    .card{
+      border:1px solid var(--line);border-radius:14px;padding:14px;margin:14px 0;
+    }
+    .card h2{margin:0 0 10px;color:var(--purple);font-size:15px;}
+    .tiny{font-size:12px;color:var(--muted);}
+
+    .row{display:flex;gap:12px;flex-wrap:wrap;}
+    .row > div{flex:1;min-width:220px;}
+
+    input[type="date"], input[type="text"], select{
+      width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;
+    }
+    textarea{
+      width:100%;min-height:90px;padding:10px;border:1px solid var(--line);border-radius:10px;
+    }
+
+    .pill{
+      display:inline-block;background:var(--goldLight);border:1px solid var(--gold);
+      padding:2px 10px;border-radius:999px;font-size:12px;
+    }
+    .status{
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px;
+    }
+    .badge{
+      display:inline-block;padding:3px 10px;border-radius:999px;font-weight:900;font-size:12px;
+      border:1px solid var(--line);background:#f7f7f7;
+    }
+    .badge.live{background:var(--goldLight);border-color:var(--gold);}
+    .badge.locked{background:#f5f5ff;border-color:var(--purple);color:var(--purple);}
+
+    .btn{
+      border:1px solid var(--purple);
+      background:var(--purple);color:#fff;
+      padding:10px 14px;border-radius:10px;font-weight:900;cursor:pointer;
+    }
+    .btn.secondary{background:#fff;color:var(--purple);}
+    .btn.danger{border-color:#b00020;background:#b00020;}
+    .btn:disabled{opacity:.5;cursor:not-allowed;}
+
+    /* Panels */
+    .panels{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    @media (min-width: 800px){
+      .panels{grid-template-columns:1fr 1fr;}
+    }
+    .panel{
+      border:1px solid var(--line);border-radius:14px;padding:12px;
+    }
+    .panel h3{margin:0 0 6px;color:#111;font-size:14px;}
+    .score{
+      display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;
+      font-size:13px;
+    }
+    .score .box{
+      border:1px solid var(--line);border-radius:12px;padding:10px;
+    }
+    .score .box b{display:block;margin-bottom:4px;}
+    .good{color:var(--good);font-weight:900;}
+    .bad{color:var(--bad);font-weight:900;}
+
+    .actions{
+      display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;
+    }
+    .act{
+      border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px;
+      font-weight:1000;font-size:16px;cursor:pointer;
+    }
+    .act:disabled{opacity:.5;cursor:not-allowed;}
+    .act.passGood{border-color:#cfe8d6;}
+    .act.passBad{border-color:#f3c6c6;}
+    .act.tackGood{border-color:#cfe0ff;}
+    .act.tackBad{border-color:#ffe4c7;}
+
+    .act span{display:block;font-size:12px;color:var(--muted);font-weight:800;margin-top:4px;}
+
+    .divider{border:none;border-top:1px dashed var(--line);margin:14px 0;}
+    .list-item{
+      border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:10px;
+    }
+    .kpiGrid{
+      display:grid;grid-template-columns:1fr;gap:10px;
+    }
+    @media (min-width: 800px){
+      .kpiGrid{grid-template-columns:1fr 1fr;}
+    }
+    .kpi{
+      border:1px solid var(--line);border-radius:12px;padding:10px;
+    }
+    .kpi h4{margin:0 0 8px;color:var(--purple);}
+    .kpiRow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+    .target{font-size:12px;color:var(--muted);margin-top:6px;}
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>CarlosCoach</h1>
+  <div class="sub">Sideline tracking: passes/tackles + notes. Local on-device.</div>
+</header>
+
+<nav>
+  <button id="tab-game" class="active" onclick="showTab('game')">Game</button>
+  <button id="tab-summary" onclick="showTab('summary')">Summary</button>
+  <button id="tab-manage" onclick="showTab('manage')">Manage</button>
+</nav>
+
+<main>
+  <!-- GAME -->
+  <section id="game">
+    <div class="card">
+      <h2>Game setup</h2>
+      <div class="row">
+        <div>
+          <div class="tiny">Game date</div>
+          <input type="date" id="gDate">
+        </div>
+        <div>
+          <div class="tiny">Venue</div>
+          <input type="text" id="gVenue" placeholder="Starfire / Arena / etc">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <div class="tiny">Team played for</div>
+          <div class="row" style="gap:8px;">
+            <div style="flex:1;min-width:220px;">
+              <select id="gTeam"></select>
+            </div>
+            <div style="flex:0;min-width:180px;">
+              <button class="btn secondary" onclick="addTeam()">+ Add team</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="tiny">Opponent</div>
+          <input type="text" id="gOpp" placeholder="Seattle United / etc">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <div class="tiny">Player A</div>
+          <div class="row" style="gap:8px;">
+            <div style="flex:1;min-width:220px;">
+              <select id="pA"></select>
+            </div>
+            <div style="flex:0;min-width:180px;">
+              <button class="btn secondary" onclick="addPlayer()">+ Add player</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="tiny">Player B</div>
+          <div class="row" style="gap:8px;">
+            <div style="flex:1;min-width:220px;">
+              <select id="pB"></select>
+            </div>
+            <div style="flex:0;min-width:180px;">
+              <button class="btn secondary" onclick="addPlayer()">+ Add player</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status">
+        <span class="badge" id="gameStateBadge">NO GAME LOADED</span>
+        <span class="tiny">Selected game: <span class="pill" id="gameKeyPill">—</span></span>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn" id="btnStart" onclick="startGame()">Start game</button>
+        <button class="btn" id="btnEnd" onclick="endGame()">End game (Lock)</button>
+        <button class="btn secondary" id="btnUnlock" onclick="unlockGame()">Unlock</button>
+      </div>
+
+      <div class="tiny" style="margin-top:10px;">
+        Tip: Start game locks the date/opp/team/players into a “game session.” End game locks stats + notes (you can unlock later).
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Live tracking</h2>
+
+      <div class="panels">
+        <div class="panel">
+          <h3>Player A: <span class="pill" id="nameA">—</span></h3>
+
+          <div class="score">
+            <div class="box">
+              <b>Passes</b>
+              ✅ <span id="aPassGood">0</span> / ❌ <span id="aPassBad">0</span>
+              <div class="tiny">Rate: <span id="aPassRate">—</span></div>
+            </div>
+            <div class="box">
+              <b>Tackles</b>
+              ✅ <span id="aTackGood">0</span> / ❌ <span id="aTackBad">0</span>
+              <div class="tiny">Rate: <span id="aTackRate">—</span></div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="act passGood" id="btnAPG" onclick="tap('A','passGood')">✅🟩 Pass+ <span>successful pass</span></button>
+            <button class="act passBad"  id="btnAPB" onclick="tap('A','passBad')">❌🟥 Pass- <span>unsuccessful pass</span></button>
+            <button class="act tackGood" id="btnATG" onclick="tap('A','tackGood')">✅🟦 Tack+ <span>successful tackle</span></button>
+            <button class="act tackBad"  id="btnATB" onclick="tap('A','tackBad')">❌🟧 Tack- <span>unsuccessful tackle</span></button>
+          </div>
+
+          <div style="margin-top:10px;">
+            <button class="btn secondary" id="btnUndoA" onclick="undo('A')">Undo (A)</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Player B: <span class="pill" id="nameB">—</span></h3>
+
+          <div class="score">
+            <div class="box">
+              <b>Passes</b>
+              ✅ <span id="bPassGood">0</span> / ❌ <span id="bPassBad">0</span>
+              <div class="tiny">Rate: <span id="bPassRate">—</span></div>
+            </div>
+            <div class="box">
+              <b>Tackles</b>
+              ✅ <span id="bTackGood">0</span> / ❌ <span id="bTackBad">0</span>
+              <div class="tiny">Rate: <span id="bTackRate">—</span></div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="act passGood" id="btnBPG" onclick="tap('B','passGood')">✅🟩 Pass+ <span>successful pass</span></button>
+            <button class="act passBad"  id="btnBPB" onclick="tap('B','passBad')">❌🟥 Pass- <span>unsuccessful pass</span></button>
+            <button class="act tackGood" id="btnBTG" onclick="tap('B','tackGood')">✅🟦 Tack+ <span>successful tackle</span></button>
+            <button class="act tackBad"  id="btnBTB" onclick="tap('B','tackBad')">❌🟧 Tack- <span>unsuccessful tackle</span></button>
+          </div>
+
+          <div style="margin-top:10px;">
+            <button class="btn secondary" id="btnUndoB" onclick="undo('B')">Undo (B)</button>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="tiny">Game notes (scratch pad)</div>
+      <textarea id="gNotes" placeholder="Halftime thoughts, patterns, coaching notes…"></textarea>
+      <div class="tiny" style="margin-top:8px;">Notes are saved with the game. When locked, notes become read-only.</div>
+    </div>
+
+    <div class="card">
+      <h2>Recent games</h2>
+      <div id="recentGames"></div>
+      <div class="tiny" style="margin-top:10px;">Tap a recent game to load it into the Game tab.</div>
+    </div>
+  </section>
+
+  <!-- SUMMARY -->
+  <section id="summary" style="display:none;">
+    <div class="card">
+      <h2>Summary</h2>
+
+      <div class="row">
+        <div>
+          <div class="tiny">Player A</div>
+          <select id="sPlayerA"></select>
+        </div>
+        <div>
+          <div class="tiny">Player B (optional compare)</div>
+          <select id="sPlayerB"></select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <div class="tiny">Range</div>
+          <select id="sRange" onchange="renderSummary()">
+            <option value="all">All games</option>
+            <option value="last5">Last 5 games</option>
+            <option value="single">Single game</option>
+          </select>
+        </div>
+        <div>
+          <div class="tiny">Single game</div>
+          <select id="sGame"></select>
+          <div class="tiny">Used only when Range = Single game.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn secondary" onclick="renderSummary()">Refresh</button>
+      </div>
+    </div>
+
+    <div class="card" id="summaryHeaderCard" style="display:none;">
+      <h2>Selected game</h2>
+      <div class="tiny" id="selectedGameHeader">—</div>
+    </div>
+
+    <div class="card">
+      <h2>Results</h2>
+      <div id="summaryOut" class="kpiGrid"></div>
+      <div class="tiny" style="margin-top:10px;">
+        Targets: Passes ≥ 80% success, Tackles ≥ 50% success.
+      </div>
+    </div>
+  </section>
+
+  <!-- MANAGE -->
+  <section id="manage" style="display:none;">
+    <div class="card">
+      <h2>Players & Teams</h2>
+      <div class="row">
+        <div>
+          <div class="tiny">Players</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+            <button class="btn secondary" onclick="addPlayer()">+ Add player</button>
+          </div>
+          <div id="playerList" style="margin-top:10px;"></div>
+        </div>
+        <div>
+          <div class="tiny">Teams</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+            <button class="btn secondary" onclick="addTeam()">+ Add team</button>
+          </div>
+          <div id="teamList" style="margin-top:10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Data health</h2>
+      <div class="tiny" id="dataHealth">—</div>
+      <div style="margin-top:12px;">
+        <button class="btn danger" onclick="resetAll()">Reset ALL data</button>
+      </div>
+      <div class="tiny" style="margin-top:8px;">Reset deletes players, teams, and games from this device.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ===== storage keys ===== */
+const K_PLAYERS = "cc_players";
+const K_TEAMS   = "cc_teams";
+const K_GAMES   = "cc_games";
+const K_ACTIVE  = "cc_active_gameId";
+
+/* ===== helpers ===== */
+function $(id){ return document.getElementById(id); }
+function uid(){ return "id_" + Math.random().toString(36).slice(2,10) + "_" + Date.now().toString(36); }
+function clampName(s){
+  return (s || "").trim().replace(/\s+/g," ");
+}
+function prettyName(s){
+  const x = clampName(s);
+  if(!x) return x;
+  return x.split(" ").map(w => w.slice(0,1).toUpperCase() + w.slice(1)).join(" ");
+}
+function loadJSON(key, fallback){
+  try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+  catch { return fallback; }
+}
+function saveJSON(key, value){
+  localStorage.setItem(key, JSON.stringify(value));
+}
+function pct(good, bad){
+  const t = good + bad;
+  if(!t) return "—";
+  return Math.round((good / t) * 100) + "%";
+}
+function fmtGameLabel(g){
+  return `${g.date} vs ${g.opponent || "Opponent?"} — ${g.teamName || "Team?"}${g.venue ? " @ "+g.venue : ""}`;
+}
+
+/* ===== data models =====
+players: [{id, name}]
+teams: [{id, name}]
+games: [{
+  id, date, venue, teamId, teamName, opponent,
+  playerAId, playerAName, playerBId, playerBName,
+  stats: {A:{passGood,passBad,tackGood,tackBad}, B:{...}},
+  stacks: {A:[action], B:[action]},  // for undo
+  notes, locked, startedAt, endedAt
+}]
+*/
+
+/* ===== init defaults ===== */
+function ensureDefaults(){
+  const players = loadJSON(K_PLAYERS, []);
+  const teams   = loadJSON(K_TEAMS, []);
+  const games   = loadJSON(K_GAMES, []);
+
+  if(teams.length === 0){
+    const seed = [
+      "Seattle Celtic G12 White",
+      "Seattle Celtic G12 Green",
+      "Seattle Celtic GA12",
+      "Seattle United",
+      "Indoor Team"
+    ].map(n => ({id:uid(), name:n}));
+    saveJSON(K_TEAMS, seed);
+  }
+  if(players.length === 0){
+    const seed = ["Sofia","Sophia","Harper"].map(n => ({id:uid(), name:n}));
+    saveJSON(K_PLAYERS, seed);
+  }
+  if(!Array.isArray(games)) saveJSON(K_GAMES, []);
+}
+
+/* ===== dropdown rendering ===== */
+function renderDropdowns(){
+  const players = loadJSON(K_PLAYERS, []);
+  const teams   = loadJSON(K_TEAMS, []);
+  const games   = loadJSON(K_GAMES, []).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+
+  // Teams
+  $("gTeam").innerHTML = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
+
+  // Players
+  const opts = players.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
+  $("pA").innerHTML = `<option value="">— select —</option>${opts}`;
+  $("pB").innerHTML = `<option value="">— select —</option>${opts}`;
+
+  $("sPlayerA").innerHTML = `<option value="">— select —</option>${opts}`;
+  $("sPlayerB").innerHTML = `<option value="">— none —</option>${opts}`;
+
+  // Games dropdown for summary
+  $("sGame").innerHTML = games.map(g => `<option value="${g.id}">${fmtGameLabel(g)}</option>`).join("");
+
+  // Recent games list
+  renderRecentGames();
+
+  // Manage lists
+  renderManageLists();
+
+  // If summary already open, re-render
+  renderSummary();
+}
+
+function renderManageLists(){
+  const players = loadJSON(K_PLAYERS, []);
+  const teams   = loadJSON(K_TEAMS, []);
+  $("playerList").innerHTML = players.map(p =>
+    `<div class="list-item">
+      <b>${p.name}</b>
+      <div class="tiny">id: ${p.id}</div>
+    </div>`
+  ).join("") || `<div class="tiny">No players yet.</div>`;
+
+  $("teamList").innerHTML = teams.map(t =>
+    `<div class="list-item">
+      <b>${t.name}</b>
+      <div class="tiny">id: ${t.id}</div>
+    </div>`
+  ).join("") || `<div class="tiny">No teams yet.</div>`;
+
+  // Health
+  const games = loadJSON(K_GAMES, []);
+  const totalGames = games.length;
+  const uniqPlayers = players.length;
+  const totalPass = games.reduce((s,g)=> s + g.stats.A.passGood + g.stats.A.passBad + g.stats.B.passGood + g.stats.B.passBad, 0);
+  const totalTack = games.reduce((s,g)=> s + g.stats.A.tackGood + g.stats.A.tackBad + g.stats.B.tackGood + g.stats.B.tackBad, 0);
+  const last = games.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""))[0];
+  $("dataHealth").innerHTML = `
+    Games logged: <b>${totalGames}</b><br>
+    Players in roster: <b>${uniqPlayers}</b><br>
+    Total pass events: <b>${totalPass}</b><br>
+    Total tackle events: <b>${totalTack}</b><br>
+    Most recent game: <b>${last ? fmtGameLabel(last) : "—"}</b>
+  `;
+}
+
+function renderRecentGames(){
+  const games = loadJSON(K_GAMES, []).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+  const top = games.slice(0,8);
+  $("recentGames").innerHTML = top.map(g =>
+    `<div class="list-item" style="cursor:pointer;" onclick="loadGame('${g.id}')">
+      <b>${g.date}</b> — ${g.teamName || "Team?"} vs ${g.opponent || "Opponent?"}
+      <div class="tiny">${g.locked ? "LOCKED ✅" : "IN PROGRESS"} ${g.venue ? " | "+g.venue : ""}</div>
+    </div>`
+  ).join("") || `<div class="tiny">No games yet. Start one above.</div>`;
+}
+
+/* ===== tab ===== */
+function showTab(t){
+  ["game","summary","manage"].forEach(x=>{
+    $(x).style.display = (x===t) ? "block" : "none";
+    $("tab-"+x).classList.toggle("active", x===t);
+  });
+}
+
+/* ===== game session ===== */
+function currentGameId(){
+  return localStorage.getItem(K_ACTIVE) || "";
+}
+function setCurrentGameId(id){
+  if(id) localStorage.setItem(K_ACTIVE, id);
+  else localStorage.removeItem(K_ACTIVE);
+}
+
+function emptyStats(){
+  return {passGood:0, passBad:0, tackGood:0, tackBad:0};
+}
+
+function setButtonsEnabled(enabled){
+  const ids = ["btnAPG","btnAPB","btnATG","btnATB","btnBPG","btnBPB","btnBTG","btnBTB","btnUndoA","btnUndoB"];
+  ids.forEach(i => $(i).disabled = !enabled);
+  $("gNotes").readOnly = !enabled;
+}
+
+function updateLiveUI(game){
+  if(!game){
+    $("gameKeyPill").textContent = "—";
+    $("gameStateBadge").textContent = "NO GAME LOADED";
+    $("gameStateBadge").className = "badge";
+    $("nameA").textContent = "—";
+    $("nameB").textContent = "—";
+    setButtonsEnabled(false);
+    return;
+  }
+
+  $("gameKeyPill").textContent = game.id;
+  $("nameA").textContent = game.playerAName || "—";
+  $("nameB").textContent = game.playerBName || "—";
+  $("gNotes").value = game.notes || "";
+
+  const live = !game.locked;
+  $("gameStateBadge").textContent = live ? "IN PROGRESS" : "LOCKED ✅";
+  $("gameStateBadge").className = "badge " + (live ? "live" : "locked");
+
+  $("btnStart").disabled  = !!game && !game.locked; // if already in progress, disable start
+  $("btnEnd").disabled    = !game || game.locked;
+  $("btnUnlock").disabled = !game || !game.locked;
+
+  setButtonsEnabled(live);
+
+  const A = game.stats.A, B = game.stats.B;
+  $("aPassGood").textContent = A.passGood; $("aPassBad").textContent = A.passBad;
+  $("aTackGood").textContent = A.tackGood; $("aTackBad").textContent = A.tackBad;
+  $("aPassRate").textContent = pct(A.passGood, A.passBad);
+  $("aTackRate").textContent = pct(A.tackGood, A.tackBad);
+
+  $("bPassGood").textContent = B.passGood; $("bPassBad").textContent = B.passBad;
+  $("bTackGood").textContent = B.tackGood; $("bTackBad").textContent = B.tackBad;
+  $("bPassRate").textContent = pct(B.passGood, B.passBad);
+  $("bTackRate").textContent = pct(B.tackGood, B.tackBad);
+}
+
+function getGame(id){
+  const games = loadJSON(K_GAMES, []);
+  return games.find(g => g.id === id) || null;
+}
+function saveGame(updated){
+  const games = loadJSON(K_GAMES, []);
+  const idx = games.findIndex(g => g.id === updated.id);
+  if(idx >= 0) games[idx] = updated;
+  else games.push(updated);
+  saveJSON(K_GAMES, games);
+  renderDropdowns();
+}
+
+function startGame(){
+  const date = $("gDate").value;
+  const venue = clampName($("gVenue").value);
+  const teamId = $("gTeam").value;
+  const teams = loadJSON(K_TEAMS, []);
+  const team = teams.find(t => t.id === teamId);
+  const teamName = team ? team.name : "";
+
+  const opponent = clampName($("gOpp").value);
+  const playerAId = $("pA").value;
+  const playerBId = $("pB").value;
+
+  const players = loadJSON(K_PLAYERS, []);
+  const A = players.find(p => p.id === playerAId);
+  const B = players.find(p => p.id === playerBId);
+
+  if(!date){ alert("Pick a game date."); return; }
+  if(!teamId){ alert("Select team played for."); return; }
+  if(!playerAId || !playerBId){ alert("Select two players."); return; }
+  if(playerAId === playerBId){ alert("Pick two different players."); return; }
+
+  const newGame = {
+    id: uid(),
+    date,
+    venue,
+    teamId,
+    teamName,
+    opponent,
+    playerAId,
+    playerAName: A ? A.name : "Player A",
+    playerBId,
+    playerBName: B ? B.name : "Player B",
+    stats: {A: emptyStats(), B: emptyStats()},
+    stacks: {A: [], B: []},
+    notes: "",
+    locked: false,
+    startedAt: new Date().toISOString(),
+    endedAt: ""
+  };
+
+  setCurrentGameId(newGame.id);
+  saveGame(newGame);
+  updateLiveUI(newGame);
+  showTab("game");
+}
+
+function endGame(){
+  const id = currentGameId();
+  if(!id){ alert("No active game loaded."); return; }
+  const game = getGame(id);
+  if(!game) return;
+
+  if(!confirm("End game and LOCK stats + notes?\n\nYou can unlock later to amend notes/stats.")) return;
+
+  game.locked = true;
+  game.endedAt = new Date().toISOString();
+  saveGame(game);
+  updateLiveUI(game);
+}
+
+function unlockGame(){
+  const id = currentGameId();
+  if(!id){ alert("No active game loaded."); return; }
+  const game = getGame(id);
+  if(!game) return;
+
+  if(!confirm("Unlock this game for edits?\n\n(You can lock it again when done.)")) return;
+
+  game.locked = false;
+  saveGame(game);
+  updateLiveUI(game);
+}
+
+function loadGame(id){
+  const game = getGame(id);
+  if(!game){ alert("Game not found."); return; }
+
+  // populate setup fields so it matches what’s loaded
+  $("gDate").value = game.date || "";
+  $("gVenue").value = game.venue || "";
+  $("gOpp").value = game.opponent || "";
+
+  // ensure dropdowns have the ids
+  $("gTeam").value = game.teamId || "";
+  $("pA").value = game.playerAId || "";
+  $("pB").value = game.playerBId || "";
+
+  setCurrentGameId(game.id);
+  updateLiveUI(game);
+  showTab("game");
+}
+
+function tap(side, action){
+  const id = currentGameId();
+  if(!id) return;
+  const game = getGame(id);
+  if(!game || game.locked) return;
+
+  const bucket = (side === "A") ? game.stats.A : game.stats.B;
+  const stack  = (side === "A") ? game.stacks.A : game.stacks.B;
+
+  if(action === "passGood") bucket.passGood++;
+  if(action === "passBad")  bucket.passBad++;
+  if(action === "tackGood") bucket.tackGood++;
+  if(action === "tackBad")  bucket.tackBad++;
+
+  stack.push({action, ts: Date.now()});
+
+  // save notes too
+  game.notes = $("gNotes").value;
+
+  saveGame(game);
+  updateLiveUI(game);
+}
+
+function undo(side){
+  const id = currentGameId();
+  if(!id) return;
+  const game = getGame(id);
+  if(!game || game.locked) return;
+
+  const bucket = (side === "A") ? game.stats.A : game.stats.B;
+  const stack  = (side === "A") ? game.stacks.A : game.stacks.B;
+
+  const last = stack.pop();
+  if(!last){ return; }
+
+  const a = last.action;
+  if(a === "passGood" && bucket.passGood > 0) bucket.passGood--;
+  if(a === "passBad"  && bucket.passBad  > 0) bucket.passBad--;
+  if(a === "tackGood" && bucket.tackGood > 0) bucket.tackGood--;
+  if(a === "tackBad"  && bucket.tackBad  > 0) bucket.tackBad--;
+
+  game.notes = $("gNotes").value;
+
+  saveGame(game);
+  updateLiveUI(game);
+}
+
+/* Notes autosave (but only when game is live/unlocked) */
+$("gNotes").addEventListener("input", () => {
+  const id = currentGameId();
+  const game = id ? getGame(id) : null;
+  if(!game || game.locked) return;
+  game.notes = $("gNotes").value;
+  saveGame(game);
+});
+
+/* ===== add player/team ===== */
+function addPlayer(){
+  const raw = prompt("New player name:");
+  const name = prettyName(raw);
+  if(!name) return;
+
+  const players = loadJSON(K_PLAYERS, []);
+  if(players.some(p => p.name.toLowerCase() === name.toLowerCase())){
+    alert("That player already exists.");
+    return;
+  }
+  players.push({id:uid(), name});
+  saveJSON(K_PLAYERS, players);
+  renderDropdowns();
+}
+
+function addTeam(){
+  const raw = prompt("New team name:");
+  const name = clampName(raw);
+  if(!name) return;
+
+  const teams = loadJSON(K_TEAMS, []);
+  if(teams.some(t => t.name.toLowerCase() === name.toLowerCase())){
+    alert("That team already exists.");
+    return;
+  }
+  teams.push({id:uid(), name});
+  saveJSON(K_TEAMS, teams);
+  renderDropdowns();
+}
+
+/* ===== summary ===== */
+function gamesForRange(range){
+  const games = loadJSON(K_GAMES, []).slice().sort((a,b)=> (a.date||"").localeCompare(b.date||""));
+  if(range === "all") return games;
+  if(range === "last5") return games.slice(-5);
+  if(range === "single"){
+    const id = $("sGame").value;
+    return id ? games.filter(g => g.id === id) : [];
+  }
+  return games;
+}
+
+function aggForPlayer(games, playerId){
+  const out = {
+    passGood:0, passBad:0, tackGood:0, tackBad:0,
+    games:0,
+    bestPass:null, bestTack:null,
+    last3: {passGood:0, passBad:0, tackGood:0, tackBad:0, games:0},
+    prior: {passGood:0, passBad:0, tackGood:0, tackBad:0, games:0}
+  };
+
+  const sorted = games.slice().sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  const perGame = [];
+
+  sorted.forEach(g=>{
+    let side = null;
+    if(g.playerAId === playerId) side = "A";
+    if(g.playerBId === playerId) side = "B";
+    if(!side) return;
+
+    const s = (side==="A") ? g.stats.A : g.stats.B;
+    out.passGood += s.passGood;
+    out.passBad  += s.passBad;
+    out.tackGood += s.tackGood;
+    out.tackBad  += s.tackBad;
+    out.games++;
+
+    perGame.push({game:g, s});
+  });
+
+  // Best game logic with minimum volume thresholds
+  // Pass best: >=10 attempts; Tackle best: >=4 attempts
+  perGame.forEach(x=>{
+    const pg = x.s.passGood, pb = x.s.passBad;
+    const tg = x.s.tackGood, tb = x.s.tackBad;
+    const pTot = pg + pb;
+    const tTot = tg + tb;
+
+    if(pTot >= 10){
+      const rate = pg / pTot;
+      if(!out.bestPass || rate > out.bestPass.rate) out.bestPass = {rate, ...x};
+    }
+    if(tTot >= 4){
+      const rate = tg / tTot;
+      if(!out.bestTack || rate > out.bestTack.rate) out.bestTack = {rate, ...x};
+    }
+  });
+
+  // Trend: last 3 games vs prior games (for this player)
+  const pGames = perGame; // already sorted by date
+  const last3 = pGames.slice(-3);
+  const prior = pGames.slice(0, Math.max(0, pGames.length - 3));
+
+  function addTo(bucket, arr){
+    arr.forEach(x=>{
+      bucket.passGood += x.s.passGood;
+      bucket.passBad  += x.s.passBad;
+      bucket.tackGood += x.s.tackGood;
+      bucket.tackBad  += x.s.tackBad;
+      bucket.games++;
+    });
+  }
+  addTo(out.last3, last3);
+  addTo(out.prior, prior);
+
+  return out;
+}
+
+function rateText(good, bad){
+  const total = good + bad;
+  if(!total) return "—";
+  return `${good}/${total} (${Math.round((good/total)*100)}%)`;
+}
+
+function passTargetBadge(good, bad){
+  const total = good + bad;
+  if(!total) return `<span class="pill">—</span>`;
+  const r = good / total;
+  if(r >= 0.80) return `<span class="pill"><span class="good">✅</span> ≥80%</span>`;
+  return `<span class="pill"><span class="bad">⚠️</span> <80%</span>`;
+}
+function tackTargetBadge(good, bad){
+  const total = good + bad;
+  if(!total) return `<span class="pill">—</span>`;
+  const r = good / total;
+  if(r >= 0.50) return `<span class="pill"><span class="good">✅</span> ≥50%</span>`;
+  return `<span class="pill"><span class="bad">⚠️</span> <50%</span>`;
+}
+
+function trendLine(label, bucket){
+  const totP = bucket.passGood + bucket.passBad;
+  const totT = bucket.tackGood + bucket.tackBad;
+  const p = totP ? Math.round((bucket.passGood/totP)*100) + "%" : "—";
+  const t = totT ? Math.round((bucket.tackGood/totT)*100) + "%" : "—";
+  return `<div class="tiny">${label}: Pass ${p} | Tack ${t} (${bucket.games} games)</div>`;
+}
+
+function renderSummary(){
+  const range = $("sRange").value;
+  const games = gamesForRange(range);
+
+  // header card only for single game
+  const headerCard = $("summaryHeaderCard");
+  if(range === "single" && games.length === 1){
+    headerCard.style.display = "block";
+    $("selectedGameHeader").textContent = fmtGameLabel(games[0]);
+  } else {
+    headerCard.style.display = "none";
+  }
+
+  const idA = $("sPlayerA").value;
+  const idB = $("sPlayerB").value;
+
+  const players = loadJSON(K_PLAYERS, []);
+  const pA = players.find(p=>p.id===idA);
+  const pB = players.find(p=>p.id===idB);
+
+  const blocks = [];
+
+  function buildBlock(name, agg){
+    const pass = rateText(agg.passGood, agg.passBad);
+    const tack = rateText(agg.tackGood, agg.tackBad);
+
+    const bestPass = agg.bestPass ? `${Math.round(agg.bestPass.rate*100)}% — ${fmtGameLabel(agg.bestPass.game)}` : "— (need ≥10 attempts)";
+    const bestTack = agg.bestTack ? `${Math.round(agg.bestTack.rate*100)}% — ${fmtGameLabel(agg.bestTack.game)}` : "— (need ≥4 attempts)";
+
+    return `
+      <div class="kpi">
+        <h4>${name}</h4>
+
+        <div class="kpiRow"><b>Passes</b><span>${pass} ${passTargetBadge(agg.passGood, agg.passBad)}</span></div>
+        <div class="kpiRow"><b>Tackles</b><span>${tack} ${tackTargetBadge(agg.tackGood, agg.tackBad)}</span></div>
+
+        <div class="target">Best pass game: <b>${bestPass}</b></div>
+        <div class="target">Best tackle game: <b>${bestTack}</b></div>
+
+        <div class="divider" style="margin:10px 0;"></div>
+        <div class="tiny"><b>Trend</b> (last 3 vs prior)</div>
+        ${trendLine("Last 3", agg.last3)}
+        ${trendLine("Prior", agg.prior)}
+      </div>
+    `;
+  }
+
+  if(idA){
+    const aggA = aggForPlayer(games, idA);
+    blocks.push(buildBlock(pA ? pA.name : "Player A", aggA));
+  }
+  if(idB){
+    const aggB = aggForPlayer(games, idB);
+    blocks.push(buildBlock(pB ? pB.name : "Player B", aggB));
+  }
+
+  $("summaryOut").innerHTML = blocks.length ? blocks.join("") : `<div class="tiny">Select a player to see summary.</div>`;
+}
+
+/* ===== reset ===== */
+function resetAll(){
+  if(!confirm("Reset ALL data on this device?\n\nThis deletes players, teams, and games.")) return;
+  localStorage.removeItem(K_PLAYERS);
+  localStorage.removeItem(K_TEAMS);
+  localStorage.removeItem(K_GAMES);
+  localStorage.removeItem(K_ACTIVE);
+  ensureDefaults();
+  renderDropdowns();
+  setCurrentGameId("");
+  updateLiveUI(null);
+  alert("Reset complete.");
+}
+
+/* ===== init ===== */
+function init(){
+  ensureDefaults();
+
+  // default date = today
+  const today = new Date().toISOString().slice(0,10);
+  $("gDate").value = today;
+
+  renderDropdowns();
+
+  // load active game if exists
+  const id = currentGameId();
+  if(id){
+    const game = getGame(id);
+    if(game){
+      // populate setup fields
+      $("gDate").value = game.date || today;
+      $("gVenue").value = game.venue || "";
+      $("gOpp").value = game.opponent || "";
+      $("gTeam").value = game.teamId || "";
+      $("pA").value = game.playerAId || "";
+      $("pB").value = game.playerBId || "";
+      updateLiveUI(game);
+    } else {
+      setCurrentGameId("");
+      updateLiveUI(null);
+    }
+  } else {
+    updateLiveUI(null);
+  }
+
+  // summary listeners
+  ["sPlayerA","sPlayerB","sGame"].forEach(id=> $(id).addEventListener("change", renderSummary));
+  $("sRange").addEventListener("change", renderSummary);
+
+  // when range is single, keep header updated
+  renderSummary();
+
+  // update live UI when dropdown selection changes (for names shown before start)
+  $("pA").addEventListener("change", ()=> {
+    const players = loadJSON(K_PLAYERS, []);
+    const A = players.find(p=>p.id===$("pA").value);
+    $("nameA").textContent = A ? A.name : "—";
+  });
+  $("pB").addEventListener("change", ()=> {
+    const players = loadJSON(K_PLAYERS, []);
+    const B = players.find(p=>p.id===$("pB").value);
+    $("nameB").textContent = B ? B.name : "—";
+  });
+}
+
+init();
+
+/* ===== PWA register ===== */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
+}
+</script>
+</body>
+</html>
