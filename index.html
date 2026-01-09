@@ -132,8 +132,10 @@
 
       width:100%;
       box-sizing:border-box;
-      white-space:normal;
-      overflow-wrap:anywhere;
+      white-space: normal;
+      overflow-wrap: break-word;  /* <-- better */
+      word-break: normal;         /* <-- important */
+      hyphens: none;              /* <-- no weird hyphenation */
     }
     .act:disabled{opacity:.5;cursor:not-allowed;}
     .act.passGood{border-color:#cfe8d6;}
