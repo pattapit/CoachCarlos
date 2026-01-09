@@ -135,7 +135,9 @@
       white-space: normal;
       overflow-wrap: break-word;  /* <-- better */
       word-break: normal;         /* <-- important */
-      hyphens: none;              /* <-- no weird hyphenation */
+      hyphens: none; 
+      line-height:1.15;
+      min-height:72px;
     }
     .act:disabled{opacity:.5;cursor:not-allowed;}
     .act.passGood{border-color:#cfe8d6;}
@@ -151,6 +153,9 @@
       .act{padding:12px;font-size:15px;}
       .score .box{padding:8px;}
     }
+    @media (max-width: 520px){
+    .act span{ display:none; }
+}
 
     .divider{border:none;border-top:1px dashed var(--line);margin:14px 0;}
     .list-item{
