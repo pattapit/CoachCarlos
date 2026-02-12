@@ -144,8 +144,6 @@
     .act.passBad{border-color:#f3c6c6;}
     .act.tackGood{border-color:#cfe0ff;}
     .act.tackBad{border-color:#ffe4c7;}
-    .act.shotGood{border-color:#d4edda;}
-    .act.shotBad{border-color:#f8d7da;}
     .act.goalGood{border-color:#b8daff;}
     .act.goalBad{border-color:#ffeaa7;}
 
@@ -334,26 +332,19 @@
               <div class="tiny">Rate: <span id="aTackRate">—</span></div>
             </div>
             <div class="box">
-              <b>Shots</b>
-              ✅ <span id="aShotGood">0</span> / ❌ <span id="aShotBad">0</span>
-              <div class="tiny">Rate: <span id="aShotRate">—</span></div>
-            </div>
-            <div class="box">
-              <b>Goals</b>
+              <b>Goal Shots</b>
               ✅ <span id="aGoalGood">0</span> / ❌ <span id="aGoalBad">0</span>
               <div class="tiny">Rate: <span id="aGoalRate">—</span></div>
             </div>
           </div>
 
           <div class="actions">
-            <button class="act passGood" id="btnAPG" onclick="tap('A','passGood')">✅ Pass <span>successful pass</span></button>
-            <button class="act tackGood" id="btnATG" onclick="tap('A','tackGood')">✅ Tackle <span>successful tackle</span></button>
-            <button class="act shotGood" id="btnASG" onclick="tap('A','shotGood')">✅ Shot <span>on target</span></button>
-            <button class="act goalGood" id="btnAGG" onclick="tap('A','goalGood')">✅ Goal <span>goal scored</span></button>
-            <button class="act passBad"  id="btnAPB" onclick="tap('A','passBad')">❌ Pass <span>unsuccessful pass</span></button>
-            <button class="act tackBad"  id="btnATB" onclick="tap('A','tackBad')">❌ Tackle <span>unsuccessful tackle</span></button>
-            <button class="act shotBad"  id="btnASB" onclick="tap('A','shotBad')">❌ Shot <span>off target</span></button>
-            <button class="act goalBad"  id="btnAGB" onclick="tap('A','goalBad')">❌ Goal <span>goal missed</span></button>
+            <button class="act passBad"  id="btnAPB" onclick="tap('A','passBad')">❌ Pass</button>
+            <button class="act passGood" id="btnAPG" onclick="tap('A','passGood')">✅ Pass</button>
+            <button class="act tackBad"  id="btnATB" onclick="tap('A','tackBad')">❌ Tackle</button>
+            <button class="act tackGood" id="btnATG" onclick="tap('A','tackGood')">✅ Tackle</button>
+            <button class="act goalBad"  id="btnAGB" onclick="tap('A','goalBad')">❌ Goal Shot</button>
+            <button class="act goalGood" id="btnAGG" onclick="tap('A','goalGood')">✅ Goal Shot</button>
           </div>
 
           <div style="margin-top:10px;">
@@ -376,26 +367,19 @@
               <div class="tiny">Rate: <span id="bTackRate">—</span></div>
             </div>
             <div class="box">
-              <b>Shots</b>
-              ✅ <span id="bShotGood">0</span> / ❌ <span id="bShotBad">0</span>
-              <div class="tiny">Rate: <span id="bShotRate">—</span></div>
-            </div>
-            <div class="box">
-              <b>Goals</b>
+              <b>Goal Shots</b>
               ✅ <span id="bGoalGood">0</span> / ❌ <span id="bGoalBad">0</span>
               <div class="tiny">Rate: <span id="bGoalRate">—</span></div>
             </div>
           </div>
 
           <div class="actions">
-            <button class="act passGood" id="btnBPG" onclick="tap('B','passGood')">✅ Pass <span>successful pass</span></button>
-            <button class="act tackGood" id="btnBTG" onclick="tap('B','tackGood')">✅ Tackle <span>successful tackle</span></button>
-            <button class="act shotGood" id="btnBSG" onclick="tap('B','shotGood')">✅ Shot <span>on target</span></button>
-            <button class="act goalGood" id="btnBGG" onclick="tap('B','goalGood')">✅ Goal <span>goal scored</span></button>
-            <button class="act passBad"  id="btnBPB" onclick="tap('B','passBad')">❌ Pass <span>unsuccessful pass</span></button>
-            <button class="act tackBad"  id="btnBTB" onclick="tap('B','tackBad')">❌ Tackle <span>unsuccessful tackle</span></button>
-            <button class="act shotBad"  id="btnBSB" onclick="tap('B','shotBad')">❌ Shot <span>off target</span></button>
-            <button class="act goalBad"  id="btnBGB" onclick="tap('B','goalBad')">❌ Goal <span>goal missed</span></button>
+            <button class="act passBad"  id="btnBPB" onclick="tap('B','passBad')">❌ Pass</button>
+            <button class="act passGood" id="btnBPG" onclick="tap('B','passGood')">✅ Pass</button>
+            <button class="act tackBad"  id="btnBTB" onclick="tap('B','tackBad')">❌ Tackle</button>
+            <button class="act tackGood" id="btnBTG" onclick="tap('B','tackGood')">✅ Tackle</button>
+            <button class="act goalBad"  id="btnBGB" onclick="tap('B','goalBad')">❌ Goal Shot</button>
+            <button class="act goalGood" id="btnBGG" onclick="tap('B','goalGood')">✅ Goal Shot</button>
           </div>
 
           <div style="margin-top:10px;">
@@ -783,11 +767,11 @@ function setCurrentGameId(id){
 }
 
 function emptyStats(){
-  return {passGood:0, passBad:0, tackGood:0, tackBad:0, shotGood:0, shotBad:0, goalGood:0, goalBad:0};
+  return {passGood:0, passBad:0, tackGood:0, tackBad:0, goalGood:0, goalBad:0};
 }
 
 function setButtonsEnabled(enabled){
-  const ids = ["btnAPG","btnAPB","btnATG","btnATB","btnASG","btnASB","btnAGG","btnAGB","btnBPG","btnBPB","btnBTG","btnBTB","btnBSG","btnBSB","btnBGG","btnBGB","btnUndoA","btnUndoB"];
+  const ids = ["btnAPG","btnAPB","btnATG","btnATB","btnAGG","btnAGB","btnBPG","btnBPB","btnBTG","btnBTB","btnBGG","btnBGB","btnUndoA","btnUndoB"];
   ids.forEach(i => $(i).disabled = !enabled);
   $("gNotes").readOnly = !enabled;
 }
@@ -824,20 +808,16 @@ function updateLiveUI(game){
   const A = game.stats.A, B = game.stats.B;
   $("aPassGood").textContent = A.passGood; $("aPassBad").textContent = A.passBad;
   $("aTackGood").textContent = A.tackGood; $("aTackBad").textContent = A.tackBad;
-  $("aShotGood").textContent = A.shotGood || 0; $("aShotBad").textContent = A.shotBad || 0;
   $("aGoalGood").textContent = A.goalGood || 0; $("aGoalBad").textContent = A.goalBad || 0;
   $("aPassRate").textContent = pct(A.passGood, A.passBad);
   $("aTackRate").textContent = pct(A.tackGood, A.tackBad);
-  $("aShotRate").textContent = pct(A.shotGood || 0, A.shotBad || 0);
   $("aGoalRate").textContent = pct(A.goalGood || 0, A.goalBad || 0);
 
   $("bPassGood").textContent = B.passGood; $("bPassBad").textContent = B.passBad;
   $("bTackGood").textContent = B.tackGood; $("bTackBad").textContent = B.tackBad;
-  $("bShotGood").textContent = B.shotGood || 0; $("bShotBad").textContent = B.shotBad || 0;
   $("bGoalGood").textContent = B.goalGood || 0; $("bGoalBad").textContent = B.goalBad || 0;
   $("bPassRate").textContent = pct(B.passGood, B.passBad);
   $("bTackRate").textContent = pct(B.tackGood, B.tackBad);
-  $("bShotRate").textContent = pct(B.shotGood || 0, B.shotBad || 0);
   $("bGoalRate").textContent = pct(B.goalGood || 0, B.goalBad || 0);
 }
 
@@ -971,8 +951,6 @@ function tap(side, action){
   if(action === "passBad")  bucket.passBad++;
   if(action === "tackGood") bucket.tackGood++;
   if(action === "tackBad")  bucket.tackBad++;
-  if(action === "shotGood") bucket.shotGood++;
-  if(action === "shotBad")  bucket.shotBad++;
   if(action === "goalGood") bucket.goalGood++;
   if(action === "goalBad")  bucket.goalBad++;
 
@@ -1001,8 +979,6 @@ function undo(side){
   if(a === "passBad"  && bucket.passBad  > 0) bucket.passBad--;
   if(a === "tackGood" && bucket.tackGood > 0) bucket.tackGood--;
   if(a === "tackBad"  && bucket.tackBad  > 0) bucket.tackBad--;
-  if(a === "shotGood" && bucket.shotGood > 0) bucket.shotGood--;
-  if(a === "shotBad"  && bucket.shotBad  > 0) bucket.shotBad--;
   if(a === "goalGood" && bucket.goalGood > 0) bucket.goalGood--;
   if(a === "goalBad"  && bucket.goalBad  > 0) bucket.goalBad--;
 
@@ -1191,11 +1167,11 @@ function gamesForRange(range){
 
 function aggForPlayer(games, playerId){
   const out = {
-    passGood:0, passBad:0, tackGood:0, tackBad:0, shotGood:0, shotBad:0, goalGood:0, goalBad:0,
+    passGood:0, passBad:0, tackGood:0, tackBad:0, goalGood:0, goalBad:0,
     games:0,
     bestPass:null, bestTack:null,
-    last3: {passGood:0, passBad:0, tackGood:0, tackBad:0, shotGood:0, shotBad:0, goalGood:0, goalBad:0, games:0},
-    prior: {passGood:0, passBad:0, tackGood:0, tackBad:0, shotGood:0, shotBad:0, goalGood:0, goalBad:0, games:0}
+    last3: {passGood:0, passBad:0, tackGood:0, tackBad:0, goalGood:0, goalBad:0, games:0},
+    prior: {passGood:0, passBad:0, tackGood:0, tackBad:0, goalGood:0, goalBad:0, games:0}
   };
 
   const sorted = games.slice().sort((a,b)=>(a.date||"").localeCompare(b.date||""));
@@ -1212,8 +1188,6 @@ function aggForPlayer(games, playerId){
     out.passBad  += s.passBad;
     out.tackGood += s.tackGood;
     out.tackBad  += s.tackBad;
-    out.shotGood += s.shotGood || 0;
-    out.shotBad  += s.shotBad || 0;
     out.goalGood += s.goalGood || 0;
     out.goalBad  += s.goalBad || 0;
     out.games++;
@@ -1247,8 +1221,6 @@ function aggForPlayer(games, playerId){
       bucket.passBad  += x.s.passBad;
       bucket.tackGood += x.s.tackGood;
       bucket.tackBad  += x.s.tackBad;
-      bucket.shotGood += x.s.shotGood || 0;
-      bucket.shotBad  += x.s.shotBad || 0;
       bucket.goalGood += x.s.goalGood || 0;
       bucket.goalBad  += x.s.goalBad || 0;
       bucket.games++;
@@ -1294,19 +1266,16 @@ function tackTargetBadge(good, bad){
 function trendLine(label, bucket){
   const totP = bucket.passGood + bucket.passBad;
   const totT = bucket.tackGood + bucket.tackBad;
-  const totS = (bucket.shotGood || 0) + (bucket.shotBad || 0);
   const totG = (bucket.goalGood || 0) + (bucket.goalBad || 0);
   const p = totP ? Math.round((bucket.passGood/totP)*100) + "%" : "—";
   const t = totT ? Math.round((bucket.tackGood/totT)*100) + "%" : "—";
-  const s = totS ? Math.round(((bucket.shotGood || 0)/totS)*100) + "%" : "—";
   const g = totG ? Math.round(((bucket.goalGood || 0)/totG)*100) + "%" : "—";
-  return `<div class="tiny">${label}: Pass ${p} | Tack ${t} | Shot ${s} | Goal ${g} (${bucket.games} games)</div>`;
+  return `<div class="tiny">${label}: Pass ${p} | Tack ${t} | Goal Shot ${g} (${bucket.games} games)</div>`;
 }
 
 function buildAggregateBlock(name, agg){
   const pass = rateText(agg.passGood, agg.passBad);
   const tack = rateText(agg.tackGood, agg.tackBad);
-  const shot = rateText(agg.shotGood || 0, agg.shotBad || 0);
   const goal = rateText(agg.goalGood || 0, agg.goalBad || 0);
 
   const bestPass = agg.bestPass ? `${Math.round(agg.bestPass.rate*100)}% — ${fmtGameLabel(agg.bestPass.game)}` : "— (need ≥10 attempts)";
@@ -1318,8 +1287,7 @@ function buildAggregateBlock(name, agg){
 
       <div class="kpiRow"><b>Passes</b><span>${pass} ${passTargetBadge(agg.passGood, agg.passBad)}</span></div>
       <div class="kpiRow"><b>Tackles</b><span>${tack} ${tackTargetBadge(agg.tackGood, agg.tackBad)}</span></div>
-      <div class="kpiRow"><b>Shots</b><span>${shot}</span></div>
-      <div class="kpiRow"><b>Goals</b><span>${goal}</span></div>
+      <div class="kpiRow"><b>Goal Shots</b><span>${goal}</span></div>
 
       <div class="target">Best pass game: <b>${bestPass}</b></div>
       <div class="target">Best tackle game: <b>${bestTack}</b></div>
@@ -1355,7 +1323,6 @@ function buildSingleGameBlock(title, game, playerId){
   const s = ps.s;
   const pass = rateText(s.passGood, s.passBad);
   const tack = rateText(s.tackGood, s.tackBad);
-  const shot = rateText(s.shotGood || 0, s.shotBad || 0);
   const goal = rateText(s.goalGood || 0, s.goalBad || 0);
 
   return `
@@ -1367,8 +1334,7 @@ function buildSingleGameBlock(title, game, playerId){
 
       <div class="kpiRow"><b>Passes</b><span>${pass} ${passTargetBadge(s.passGood, s.passBad)}</span></div>
       <div class="kpiRow"><b>Tackles</b><span>${tack} ${tackTargetBadge(s.tackGood, s.tackBad)}</span></div>
-      <div class="kpiRow"><b>Shots</b><span>${shot}</span></div>
-      <div class="kpiRow"><b>Goals</b><span>${goal}</span></div>
+      <div class="kpiRow"><b>Goal Shots</b><span>${goal}</span></div>
 
       <div class="divider" style="margin:10px 0;"></div>
       <div class="tiny"><b>Notes</b></div>
